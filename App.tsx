@@ -1,13 +1,14 @@
-import { ScreenContent } from 'components/ScreenContent';
-import { StatusBar } from 'expo-status-bar';
-
+import { View } from 'react-native';
+import HomeScreen from 'screens/HomeScreen';
+import BottomNavigation from 'components/BottomNavigation';
 import './global.css';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function App() {
   return (
-    <>
-      <ScreenContent title="Home" path="App.tsx"></ScreenContent>
-      <StatusBar style="auto" />
-    </>
+    <SafeAreaView className="bg-background flex-1 flex-col gap-0">
+      <HomeScreen />
+      <BottomNavigation />
+    </SafeAreaView>
   );
 }
