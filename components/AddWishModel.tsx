@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Animated, { FadeInDown, FadeOutDown } from 'react-native-reanimated';
 import { Wish, Category } from 'types';
+import { Button } from './common/Button';
 
 const CATEGORIES: Category[] = ['Furniture', 'Electronics', 'Books', 'Other'];
 const CURRENCIES = ['₹', '$', '€', '£'];
@@ -95,7 +96,7 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
             onChangeText={setTitle}
             className="mb-1 rounded-xl border border-gray-200 px-4 py-3"
           />
-          {errors.title && <Text className="text-danger mb-2 text-sm">{errors.title}</Text>}
+          {errors.title && <Text className="mb-2 text-sm text-danger">{errors.title}</Text>}
 
           {/* Price + Currency */}
           <View className="mb-1 flex-row gap-3">
@@ -118,7 +119,7 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
               className="flex-1 rounded-xl border border-gray-200 px-4 py-3"
             />
           </View>
-          {errors.price && <Text className="text-danger mb-2 text-sm">{errors.price}</Text>}
+          {errors.price && <Text className="mb-2 text-sm text-danger">{errors.price}</Text>}
 
           {/* Category */}
           <View className="mb-4 mt-2 flex-row flex-wrap gap-3">
@@ -140,7 +141,7 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
             className="mb-1 rounded-xl border border-gray-200 px-4 py-3">
             <Text>{targetDate ? targetDate.toDateString() : 'Select target date'}</Text>
           </Pressable>
-          {errors.date && <Text className="text-danger mb-2 text-sm">{errors.date}</Text>}
+          {errors.date && <Text className="mb-2 text-sm text-danger">{errors.date}</Text>}
 
           {showDatePicker && (
             <DateTimePicker
@@ -155,14 +156,9 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
           )}
 
           {/* Actions */}
-          <View className="mt-6 flex-row justify-end gap-4">
-            <Pressable onPress={onClose} className="rounded-button px-6 py-3 shadow-sm">
-              <Text className="text-textSecondary">Cancel</Text>
-            </Pressable>
-
-            <Pressable onPress={handleSave} className="bg-primary rounded-button px-6 py-3">
-              <Text className="font-semibold text-white">{isEdit ? 'Update' : 'Save'}</Text>
-            </Pressable>
+          <View className="mt-6 flex-row justify-end gap-200">
+            <Button title="Cancel" onPress={onClose} variant="ghost" />
+            <Button title="Save" onPress={handleSave} />
           </View>
         </Animated.View>
       </View>

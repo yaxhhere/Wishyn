@@ -54,6 +54,7 @@ module.exports = {
         600: 'var(--spacing-600)',
         700: 'var(--spacing-700)',
         800: 'var(--spacing-800)',
+        850: 'var(--spacing-850)',
         900: 'var(--spacing-900)',
 
         'intra-sm': 'var(--spacing-intra-section-sm)',
@@ -74,6 +75,8 @@ module.exports = {
         400: 'var(--radius-400)',
         500: 'var(--radius-500)',
         600: 'var(--radius-600)',
+        700: 'var(--radius-700)',
+        800: 'var(--radius-800)',
         full: 'var(--radius-full)',
       },
 

@@ -1,9 +1,9 @@
 import { View, Text, Image, Pressable } from 'react-native';
 import { useState } from 'react';
 import { Wish } from 'types';
-import { Link2, Pencil, Trash2, MoreVertical, ChevronDown, ChevronUp } from 'lucide-react-native';
+import { Link2, Pencil, MoreVertical, ChevronDown, ChevronUp } from 'lucide-react-native';
 import { theme } from 'utils/theme';
-
+import { MaterialDesignIcons } from '@react-native-vector-icons/material-design-icons';
 interface Props {
   wish: Wish;
   onEdit: () => void;
@@ -11,20 +11,20 @@ interface Props {
 }
 
 export default function WishCard({ wish, onEdit, onDelete }: Props) {
-  // ✅ DEFAULT EXPANDED
+  //  DEFAULT EXPANDED
   const [expanded, setExpanded] = useState(true);
 
   return (
-    <View className="mx-400 mb-300 rounded-500 bg-background-sec border-grey1 border">
+    <View className="rounded-700 mx-400 mb-300 border border-grey1 bg-background">
       {/* Header */}
       <Pressable
         onPress={() => setExpanded((p) => !p)}
-        className="px-400 py-350 flex-row items-center justify-between">
-        <View className="gap-300 flex-1 flex-row items-center">
+        className="flex-row items-center justify-between px-400 py-350">
+        <View className="flex-1 flex-row items-center gap-300">
           {/* Checkbox */}
-          <View className="border-grey1 rounded-200 h-5 w-5 border" />
+          <View className="h-5 w-5 rounded-200 border border-grey1" />
 
-          <Text numberOfLines={1} className="text-foreground text-400 flex-1 font-medium">
+          <Text numberOfLines={1} className="flex-1 text-400 font-medium text-foreground">
             {wish.title}
           </Text>
         </View>
@@ -43,26 +43,26 @@ export default function WishCard({ wish, onEdit, onDelete }: Props) {
           {/* Image + category */}
           <View className="mb-300 flex-row items-center justify-between">
             {wish.image && (
-              <Image source={{ uri: wish.image }} className="rounded-300 bg-grey1 h-20 w-20" />
+              <Image source={{ uri: wish.image }} className="h-20 w-20 rounded-300 bg-grey1" />
             )}
 
             {wish.category && (
-              <View className="bg-highlight px-300 py-200 rounded-full">
-                <Text className="text-foreground text-200">#{wish.category.toLowerCase()}</Text>
+              <View className="rounded-full bg-highlight px-300 py-200">
+                <Text className="text-200 text-foreground">#{wish.category.toLowerCase()}</Text>
               </View>
             )}
           </View>
 
           {/* Price */}
-          <View className="bg-primary px-400 py-200 mb-300 self-start rounded-full">
-            <Text className="text-primary-fg text-300 font-semibold">
+          <View className="mb-300 self-start rounded-full bg-primary px-400 py-200">
+            <Text className="text-300 font-semibold text-primary-fg">
               {wish.currency}
               {wish.price}
             </Text>
           </View>
 
           {/* Actions — ONLY when expanded */}
-          <View className="gap-400 mt-200 flex-row justify-end">
+          <View className="mt-200 flex-row justify-end gap-400">
             <Pressable>
               <Link2 size={18} color={theme.colors.foreground} />
             </Pressable>
@@ -72,7 +72,8 @@ export default function WishCard({ wish, onEdit, onDelete }: Props) {
             </Pressable>
 
             <Pressable onPress={onDelete}>
-              <Trash2 size={18} color={theme.colors.danger} />
+              {/* <Trash2 size={18} color={theme.colors.danger} /> */}
+              <MaterialDesignIcons name="delete" size={20} color={theme.colors.danger} />
             </Pressable>
 
             <Pressable>

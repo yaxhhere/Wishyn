@@ -9,21 +9,23 @@ interface Props {
 
 export default function HomeFooter({ total, onAdd }: Props) {
   return (
-    <View className="px-400 absolute bottom-[72px] left-0 right-0">
+    <View className="absolute bottom-[72px] left-0 right-0 px-400">
       <View className="flex-row items-center justify-between">
         {/* Total */}
-        <View className="bg-highlight px-500 py-300 rounded-full">
-          <Text className="text-foreground text-300 font-medium">Total : ${total}</Text>
+        <View className="rounded-full bg-highlight px-500 py-300">
+          <Text className="text-300 font-medium text-foreground">Total : ${total}</Text>
         </View>
 
         {/* Actions */}
-        <View className="gap-400 flex-row">
-          <Pressable className="bg-highlight p-400 rounded-full">
-            <Search size={20} color={theme.colors.foreground} />
+        <View className="flex-row gap-400">
+          <Pressable className="h-850 w-850 flex items-center justify-center rounded-600 bg-highlight p-400">
+            <Search size={24} color={theme.colors.foreground} />
           </Pressable>
 
-          <Pressable onPress={onAdd} className="bg-accent p-400 rounded-full">
-            <Plus size={20} color={theme.colors.muted} />
+          <Pressable
+            onPress={onAdd}
+            className="h-850 w-850 flex items-center justify-center rounded-600 bg-accent p-400">
+            <Plus size={32} color={theme.colors.muted} />
           </Pressable>
         </View>
       </View>
