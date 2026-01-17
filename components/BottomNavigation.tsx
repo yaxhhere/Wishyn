@@ -2,20 +2,29 @@ import { View, Pressable } from 'react-native';
 import { Home, Archive, User } from 'lucide-react-native';
 import { theme } from 'utils/theme';
 
-export default function BottomNavigation() {
+interface BottomNavigationProps {
+  activeScreen: string;
+  onNavigate: (screen: string) => void;
+}
+
+export default function BottomNavigation({ activeScreen, onNavigate }: BottomNavigationProps) {
+  const getIconColor = (screen: string) => {
+    return activeScreen === screen ? theme.colors.primary : theme.colors.foreground;
+  };
+
   return (
-    <View className="bg-background-sec align-center px-600 absolute bottom-0 left-0 right-0 h-20 justify-center rounded-t-2xl shadow-xl">
+    <View className="align-center shadow-3xl absolute bottom-0 left-0 right-0 h-[10%] justify-center rounded-t-[60px] bg-background-sec px-[30px]">
       <View className="flex-row justify-between">
-        <Pressable>
-          <Home size={22} color={theme.colors.foreground} />
+        <Pressable onPress={() => onNavigate('home')}>
+          <Home size={22} color={getIconColor('home')} />
         </Pressable>
 
-        <Pressable>
-          <Archive size={22} color={theme.colors.foreground} />
+        <Pressable onPress={() => onNavigate('archive')}>
+          <Archive size={22} color={getIconColor('archive')} />
         </Pressable>
 
-        <Pressable>
-          <User size={22} color={theme.colors.foreground} />
+        <Pressable onPress={() => onNavigate('profile')}>
+          <User size={22} color={getIconColor('profile')} />
         </Pressable>
       </View>
     </View>
