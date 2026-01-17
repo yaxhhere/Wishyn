@@ -1,6 +1,7 @@
 export interface Wish {
   id: string;
   title: string;
+  description?: string;
   price: number;
   currency: string;
   targetDate: string;

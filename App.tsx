@@ -8,7 +8,7 @@ export default function App() {
   return (
     <SafeAreaView className="bg-background flex-1 flex-col gap-0">
       <HomeScreen />
-      <BottomNavigation />
+      {/* <BottomNavigation /> */}
     </SafeAreaView>
   );
 }

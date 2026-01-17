@@ -1,83 +1,198 @@
 import { View, Text, Image, Pressable } from 'react-native';
 import { useState } from 'react';
+import * as Haptics from 'expo-haptics';
 import { Wish } from 'types';
-import { Link2, Pencil, MoreVertical, ChevronDown, ChevronUp } from 'lucide-react-native';
-import { theme } from 'utils/theme';
-import { MaterialDesignIcons } from '@react-native-vector-icons/material-design-icons';
+import { Ionicons } from '@expo/vector-icons';
+
 interface Props {
   wish: Wish;
   onEdit: () => void;
   onDelete: () => void;
+  onTogglePurchase: () => void;
+  onOpenLink: () => void;
 }
 
-export default function WishCard({ wish, onEdit, onDelete }: Props) {
-  //  DEFAULT EXPANDED
+export default function WishCard({ 
+  wish, 
+  onEdit, 
+  onDelete, 
+  onTogglePurchase,
+  onOpenLink 
+}: Props) {
   const [expanded, setExpanded] = useState(true);
 
-  return (
-    <View className="rounded-700 mx-400 mb-300 border border-grey1 bg-background">
-      {/* Header */}
-      <Pressable
-        onPress={() => setExpanded((p) => !p)}
-        className="flex-row items-center justify-between px-400 py-350">
-        <View className="flex-1 flex-row items-center gap-300">
-          {/* Checkbox */}
-          <View className="h-5 w-5 rounded-200 border border-grey1" />
+  // Safety check
+  if (!wish) return null;
 
-          <Text numberOfLines={1} className="flex-1 text-400 font-medium text-foreground">
+  const isPurchased = wish.isPurchased ?? false;
+
+  const toggleExpand = async () => {
+    try {
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    } catch (e) {
+      // Haptics not available
+    }
+    setExpanded((p) => !p);
+  };
+
+  const handleCheckbox = async () => {
+    try {
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    } catch (e) {
+      // Haptics not available
+    }
+    onTogglePurchase();
+  };
+
+  return (
+    <View className="mx-4 mb-3 overflow-hidden rounded-2xl border border-gray-200 bg-white">
+      {/* Header - Always Visible */}
+      <Pressable
+        onPress={toggleExpand}
+        className="flex-row items-center justify-between px-4 py-3.5"
+      >
+        <View className="flex-1 flex-row items-center gap-3">
+          {/* Checkbox */}
+          <Pressable onPress={handleCheckbox} className="p-0.5">
+            <View 
+              className={`h-5 w-5 items-center justify-center rounded border-2 ${
+                isPurchased 
+                  ? 'border-teal-600 bg-teal-600' 
+                  : 'border-gray-300 bg-white'
+              }`}
+            >
+              {isPurchased && (
+                <Ionicons name="checkmark" size={14} color="white" />
+              )}
+            </View>
+          </Pressable>
+
+          {/* Title */}
+          <Text 
+            numberOfLines={1} 
+            className={`flex-1 text-base font-medium ${
+              isPurchased ? 'text-gray-400 line-through' : 'text-gray-800'
+            }`}
+          >
             {wish.title}
           </Text>
         </View>
 
-        {/* Collapse / Expand icon */}
-        {expanded ? (
-          <ChevronUp size={18} color={theme.colors.foreground} />
-        ) : (
-          <ChevronDown size={18} color={theme.colors.foreground} />
-        )}
+        {/* Expand/Collapse Icon */}
+        <Ionicons 
+          name={expanded ? "chevron-up" : "chevron-down"} 
+          size={20} 
+          color="#6B7280" 
+        />
       </Pressable>
 
-      {/* Expanded content ONLY */}
+      {/* Collapsed State - Price Badge Only */}
+      {!expanded && (
+        <View className="px-4 pb-3">
+          <View className="self-start rounded-full bg-teal-600 px-4 py-1.5">
+            <Text className="text-sm font-semibold text-white">
+              {wish.currency}{wish.price}
+            </Text>
+          </View>
+        </View>
+      )}
+
+      {/* Expanded Content */}
       {expanded && (
-        <View className="px-400 pb-400">
-          {/* Image + category */}
-          <View className="mb-300 flex-row items-center justify-between">
-            {wish.image && (
-              <Image source={{ uri: wish.image }} className="h-20 w-20 rounded-300 bg-grey1" />
+        <View className="px-4 pb-4">
+          {/* Image + Category Row */}
+          <View className="mb-3 flex-row items-center justify-between">
+            {/* Image */}
+            {wish.image ? (
+              <Image 
+                source={{ uri: wish.image }} 
+                className="h-20 w-20 rounded-xl bg-gray-100"
+                resizeMode="cover"
+              />
+            ) : (
+              <View className="h-20 w-20 items-center justify-center rounded-xl bg-gray-100">
+                <Ionicons name="image-outline" size={24} color="#9CA3AF" />
+              </View>
             )}
 
+            {/* Category Badge */}
             {wish.category && (
-              <View className="rounded-full bg-highlight px-300 py-200">
-                <Text className="text-200 text-foreground">#{wish.category.toLowerCase()}</Text>
+              <View className="rounded-full bg-gray-100 px-4 py-1.5">
+                <Text className="text-xs font-medium text-gray-700">
+                  {wish.category}
+                </Text>
               </View>
             )}
           </View>
 
-          {/* Price */}
-          <View className="mb-300 self-start rounded-full bg-primary px-400 py-200">
-            <Text className="text-300 font-semibold text-primary-fg">
-              {wish.currency}
-              {wish.price}
+          {/* Price Badge */}
+          <View className="mb-3 self-start rounded-full bg-teal-600 px-4 py-1.5">
+            <Text className="text-sm font-semibold text-white">
+              {wish.currency}{wish.price}
             </Text>
           </View>
 
-          {/* Actions — ONLY when expanded */}
-          <View className="mt-200 flex-row justify-end gap-400">
-            <Pressable>
-              <Link2 size={18} color={theme.colors.foreground} />
+          {/* Action Icons */}
+          <View className="flex-row justify-end gap-4">
+            {/* Link */}
+            {wish.link && (
+              <Pressable 
+                onPress={async () => {
+                  try {
+                    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  } catch (e) {
+                    // Haptics not available
+                  }
+                  onOpenLink();
+                }}
+                className="p-1"
+              >
+                <Ionicons name="link-outline" size={20} color="#374151" />
+              </Pressable>
+            )}
+
+            {/* Edit */}
+            <Pressable 
+              onPress={async () => {
+                try {
+                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                } catch (e) {
+                  // Haptics not available
+                }
+                onEdit();
+              }}
+              className="p-1"
+            >
+              <Ionicons name="pencil-outline" size={20} color="#374151" />
             </Pressable>
 
-            <Pressable onPress={onEdit}>
-              <Pencil size={18} color={theme.colors.foreground} />
+            {/* Delete */}
+            <Pressable 
+              onPress={async () => {
+                try {
+                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                } catch (e) {
+                  // Haptics not available
+                }
+                onDelete();
+              }}
+              className="p-1"
+            >
+              <Ionicons name="trash-outline" size={20} color="#EF4444" />
             </Pressable>
 
-            <Pressable onPress={onDelete}>
-              {/* <Trash2 size={18} color={theme.colors.danger} /> */}
-              <MaterialDesignIcons name="delete" size={20} color={theme.colors.danger} />
-            </Pressable>
-
-            <Pressable>
-              <MoreVertical size={18} color={theme.colors.foreground} />
+            {/* More Options */}
+            <Pressable 
+              onPress={async () => {
+                try {
+                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                } catch (e) {
+                  // Haptics not available
+                }
+              }}
+              className="p-1"
+            >
+              <Ionicons name="ellipsis-vertical" size={20} color="#374151" />
             </Pressable>
           </View>
         </View>
