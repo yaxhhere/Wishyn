@@ -11,4 +11,4 @@ export interface Wish {
   isPurchased?: boolean;
 }
 
-export type Category = 'Furniture' | 'Electronics' | 'Books' | 'Other';
+export type Category = 'Furniture' | 'Electronics' | 'Books' | 'Unspecified';

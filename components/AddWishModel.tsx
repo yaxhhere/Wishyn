@@ -9,8 +9,7 @@ import { Wish, Category } from 'types';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from './common/Button';
 
-const CATEGORIES: Category[] = ['Electronics', 'Books', 'Furniture', 'Other'];
-const CURRENCIES = ['₹', '$', '€', '£', '¥'];
+const CATEGORIES: Category[] = ['Electronics', 'Books', 'Furniture', 'Unspecified'];
 
 interface Props {
   visible: boolean;
@@ -24,15 +23,13 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
 
   const [title, setTitle] = useState('');
   const [price, setPrice] = useState('');
-  const [currency, setCurrency] = useState('₹');
-  const [category, setCategory] = useState<Category>('Other');
+  const [category, setCategory] = useState<Category>('Unspecified');
   const [targetDate, setTargetDate] = useState<Date | null>(null);
   const [link, setLink] = useState('');
   const [image, setImage] = useState<string | undefined>();
 
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
-  const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
 
   useEffect(() => {
     if (!visible) return;
@@ -40,8 +37,7 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
     if (existingWish) {
       setTitle(existingWish.title);
       setPrice(existingWish.price.toString());
-      setCurrency(existingWish.currency);
-      setCategory((existingWish.category as Category) ?? 'Other');
+      setCategory((existingWish.category as Category) ?? 'Unspecified');
       setTargetDate(new Date(existingWish.targetDate));
       setLink(existingWish.link ?? '');
       setImage(existingWish.image);
@@ -53,8 +49,7 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
   const reset = () => {
     setTitle('');
     setPrice('');
-    setCurrency('₹');
-    setCategory('Other');
+    setCategory('Unspecified');
     setTargetDate(null);
     setLink('');
     setImage(undefined);
@@ -118,7 +113,7 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
       id: existingWish?.id ?? Date.now().toString(),
       title: title.trim(),
       price: Number(price),
-      currency,
+      currency: '₹',
       targetDate: targetDate?.toISOString() ?? new Date().toISOString(),
       category,
       link: link.trim() || undefined,
@@ -144,117 +139,67 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
           <Animated.View
             entering={FadeInDown.duration(250).springify()}
             exiting={FadeOutDown.duration(200)}
-            className="rounded-t-3xl bg-white px-6 pb-8 pt-5 shadow-2xl">
+            className="rounded-800 rounded-b-none bg-background p-400 shadow-2xl">
             {/* Header */}
-            <View className="mb-5 flex-row items-center justify-center">
-              <View className="h-1 w-12 rounded-full bg-gray-300" />
+            <View className="mb-400 flex-row items-center justify-center">
+              <View className="bg-border h-1 w-12 rounded-full" />
             </View>
 
-            <Text className="mb-6 text-center text-lg font-semibold text-gray-800">
+            <Text className="mb-400 text-center text-lg font-semibold text-gray-800">
               {isEdit ? 'Edit Wish' : 'Add Wish'}
             </Text>
 
             <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
               {/* Title Input */}
-              <View className="mb-4">
-                <Text className="mb-2 text-xs font-medium text-gray-500">ITEM NAME</Text>
+              <View className="mb-300">
+                <Text className="mb-200 text-xs font-medium text-gray-500">ITEM NAME</Text>
                 <TextInput
-                  placeholder="Snowbyt Echo Mini DAP"
+                  placeholder="Game Controller"
                   value={title}
                   onChangeText={setTitle}
                   placeholderTextColor="#9CA3AF"
-                  className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3.5 text-base"
+                  className="rounded-600 border border-gray-200 bg-background-sec px-400 py-400 text-200"
                   onFocus={() => Haptics.selectionAsync()}
                 />
               </View>
 
               {/* Link Input */}
-              <View className="mb-4">
-                <Text className="mb-2 text-xs font-medium text-gray-500">LINK (OPTIONAL)</Text>
+              <View className="mb-300">
+                <Text className="mb-200 text-xs font-medium text-gray-500">LINK (OPTIONAL)</Text>
                 <TextInput
                   placeholder="www.label.com"
                   value={link}
                   onChangeText={setLink}
                   autoCapitalize="none"
                   placeholderTextColor="#9CA3AF"
-                  className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3.5 text-base"
+                  className="rounded-600 border border-gray-200 bg-background-sec px-400 py-400 text-200"
+                  onFocus={() => Haptics.selectionAsync()}
+                />
+              </View>
+              {/* Price Input */}
+              <View className="mb-300 flex-1">
+                <Text className="mb-200 text-xs font-medium text-gray-500">PRICE</Text>
+                <TextInput
+                  placeholder="0"
+                  value={price}
+                  onChangeText={setPrice}
+                  keyboardType="numeric"
+                  placeholderTextColor="#9CA3AF"
+                  className="rounded-600 border border-gray-200 bg-background-sec px-400 py-400 text-200"
                   onFocus={() => Haptics.selectionAsync()}
                 />
               </View>
 
               {/* Price & Currency Row */}
-              <View className="mb-4 flex-row gap-3">
-                {/* Currency Dropdown */}
-                <View className="relative w-24">
-                  <Text className="mb-2 text-xs font-medium text-gray-500">CURRENCY</Text>
-                  <Pressable
-                    onPress={() => {
-                      Haptics.selectionAsync();
-                      setShowCurrencyDropdown((v) => !v);
-                      setShowCategoryDropdown(false);
-                    }}
-                    className="flex-row items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-4 py-3.5">
-                    <Text className="text-base font-medium">{currency}</Text>
-                    <Ionicons name="chevron-down" size={16} color="#6B7280" />
-                  </Pressable>
-
-                  {/* Currency Dropdown Menu */}
-                  {showCurrencyDropdown && (
-                    <Animated.View
-                      entering={FadeIn.duration(150)}
-                      exiting={FadeOut.duration(100)}
-                      className="absolute left-0 top-20 z-50 w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-2xl"
-                      style={{ elevation: 10 }}>
-                      {CURRENCIES.map((curr, idx) => (
-                        <Pressable
-                          key={curr}
-                          onPress={() => {
-                            Haptics.selectionAsync();
-                            setCurrency(curr);
-                            setShowCurrencyDropdown(false);
-                          }}
-                          className={`flex-row items-center justify-between px-4 py-3 ${
-                            idx < CURRENCIES.length - 1 ? 'border-b border-gray-100' : ''
-                          } ${curr === currency ? 'bg-blue-50' : ''}`}>
-                          <Text
-                            className={`text-base ${
-                              curr === currency ? 'font-semibold text-blue-600' : 'text-gray-700'
-                            }`}>
-                            {curr}
-                          </Text>
-                          {curr === currency && (
-                            <Ionicons name="checkmark" size={20} color="#2563EB" />
-                          )}
-                        </Pressable>
-                      ))}
-                    </Animated.View>
-                  )}
-                </View>
-
-                {/* Price Input */}
-                <View className="flex-1">
-                  <Text className="mb-2 text-xs font-medium text-gray-500">PRICE</Text>
-                  <TextInput
-                    placeholder="0"
-                    value={price}
-                    onChangeText={setPrice}
-                    keyboardType="numeric"
-                    placeholderTextColor="#9CA3AF"
-                    className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3.5 text-base"
-                    onFocus={() => Haptics.selectionAsync()}
-                  />
-                </View>
-              </View>
 
               {/* Image, Category & Date Section */}
-              <View className="mb-6">
-                <Text className="mb-2 text-xs font-medium text-gray-500">DETAILS</Text>
-                <View className="flex-row gap-4">
+              <View className="mt-300">
+                <View className="flex-row items-center gap-4">
                   {/* Column 1: Image Picker */}
                   <View className="relative h-28 w-28">
                     <Pressable
                       onPress={pickImage}
-                      className="h-full w-full items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-gray-300 bg-gray-50">
+                      className="border-border h-full w-full items-center justify-center overflow-hidden rounded-xl border-2 border-solid  bg-background-sec">
                       {image ? (
                         <Image source={{ uri: image }} className="h-full w-full" />
                       ) : (
@@ -268,7 +213,7 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
                     {image && (
                       <Pressable
                         onPress={removeImage}
-                        className="absolute -right-2 -top-2 h-7 w-7 items-center justify-center rounded-full bg-red-500 shadow-lg"
+                        className="absolute -right-2 -top-2 h-7 w-7 items-center justify-center rounded-full bg-danger shadow-lg"
                         style={{
                           elevation: 5,
                         }}>
@@ -278,16 +223,15 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
                   </View>
 
                   {/* Column 2: Category & Target Date */}
-                  <View className="flex-1 justify-between">
+                  <View className="flex-1 justify-between gap-200">
                     {/* Category Dropdown */}
                     <View className="relative">
                       <Pressable
                         onPress={() => {
                           Haptics.selectionAsync();
                           setShowCategoryDropdown((v) => !v);
-                          setShowCurrencyDropdown(false);
                         }}
-                        className="flex-row items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
+                        className=" flex-row items-center justify-between rounded-full bg-highlight px-400 py-400">
                         <Text className="text-sm font-medium text-gray-700">{category}</Text>
                         <Ionicons name="chevron-down" size={16} color="#6B7280" />
                       </Pressable>
@@ -297,7 +241,7 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
                         <Animated.View
                           entering={FadeIn.duration(150)}
                           exiting={FadeOut.duration(100)}
-                          className="absolute left-0 right-0 top-12 z-50 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-2xl"
+                          className="border-border absolute bottom-0 left-0 right-0 z-50 overflow-hidden rounded-600 border-2  bg-background p-400 shadow-2xl"
                           style={{ elevation: 10 }}>
                           {CATEGORIES.map((cat, idx) => (
                             <Pressable
@@ -308,19 +252,29 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
                                 setShowCategoryDropdown(false);
                               }}
                               className={`flex-row items-center justify-between px-4 py-3 ${
-                                idx < CATEGORIES.length - 1 ? 'border-b border-gray-100' : ''
-                              } ${cat === category ? 'bg-blue-50' : ''}`}>
+                                idx < CATEGORIES.length - 1 ? '' : ''
+                              } ${cat === category ? 'rounded-full bg-highlight px-400 py-300' : ''}`}>
                               <Text
                                 className={`text-sm ${
-                                  cat === category ? 'font-semibold text-blue-600' : 'text-gray-700'
+                                  cat === category
+                                    ? 'font-semibold text-highlight-fg'
+                                    : 'text-foreground'
                                 }`}>
                                 {cat}
                               </Text>
                               {cat === category && (
-                                <Ionicons name="checkmark" size={18} color="#2563EB" />
+                                <Ionicons
+                                  name="checkmark"
+                                  size={18}
+                                  color="hsl(var(--highlight-fg))"
+                                />
                               )}
                             </Pressable>
                           ))}
+                          <Pressable className="mt-300 flex flex-row gap-200 rounded-full bg-primary px-400 py-350">
+                            <Ionicons name="add" size={18} color="hsl(0,0%,100%)" />
+                            <Text className="text-primary-fg">Create New</Text>
+                          </Pressable>
                         </Animated.View>
                       )}
                     </View>
@@ -328,9 +282,9 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
                     {/* Target Date */}
                     <Pressable
                       onPress={openDatePicker}
-                      className="flex-row items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
+                      className="flex-row items-center justify-between rounded-full  bg-highlight px-400 py-400">
                       <Text
-                        className={targetDate ? 'text-sm text-gray-800' : 'text-sm text-gray-400'}>
+                        className={targetDate ? 'text-sm text-foreground' : 'text-sm text-muted'}>
                         {targetDate
                           ? targetDate.toLocaleDateString('en-US', {
                               month: 'short',
@@ -358,7 +312,7 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
             </ScrollView>
 
             {/* Action Buttons */}
-            <View className="mb-400 flex flex-row items-center justify-end gap-200">
+            <View className="my-400 flex flex-row items-center justify-end gap-200">
               <Button title="Cancel" variant="ghost" onPress={handleClose} />
               <Button title="Add Wish" variant="danger" onPress={handleSave} />
             </View>

@@ -83,6 +83,7 @@ module.exports = {
         700: 'var(--radius-700)',
         800: 'var(--radius-800)',
         900: 'var(--radius-900)',
+        1000: 'var(--radius-1000)',
         full: 'var(--radius-full)',
       },
 
