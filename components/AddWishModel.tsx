@@ -1,26 +1,13 @@
-import {
-  Modal,
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  Platform,
-  Image,
-  ScrollView,
-} from 'react-native';
+import { Modal, View, Text, TextInput, Pressable, Platform, Image, ScrollView } from 'react-native';
 import { useEffect, useState } from 'react';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import Animated, { 
-  FadeInDown, 
-  FadeOutDown,
-  FadeIn,
-  FadeOut,
-} from 'react-native-reanimated';
+import Animated, { FadeInDown, FadeOutDown, FadeIn, FadeOut } from 'react-native-reanimated';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as Haptics from 'expo-haptics';
 import { Wish, Category } from 'types';
 import { Ionicons } from '@expo/vector-icons';
+import { Button } from './common/Button';
 
 const CATEGORIES: Category[] = ['Electronics', 'Books', 'Furniture', 'Other'];
 const CURRENCIES = ['₹', '$', '€', '£', '¥'];
@@ -32,12 +19,7 @@ interface Props {
   existingWish?: Wish | null;
 }
 
-export default function AddWishModal({
-  visible,
-  onClose,
-  onSave,
-  existingWish,
-}: Props) {
+export default function AddWishModal({ visible, onClose, onSave, existingWish }: Props) {
   const isEdit = !!existingWish;
 
   const [title, setTitle] = useState('');
@@ -47,7 +29,7 @@ export default function AddWishModal({
   const [targetDate, setTargetDate] = useState<Date | null>(null);
   const [link, setLink] = useState('');
   const [image, setImage] = useState<string | undefined>();
-  
+
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
@@ -111,7 +93,7 @@ export default function AddWishModal({
     if (Platform.OS === 'android') {
       setShowDatePicker(false);
     }
-    
+
     if (selectedDate) {
       Haptics.selectionAsync();
       setTargetDate(selectedDate);
@@ -157,16 +139,12 @@ export default function AddWishModal({
 
   return (
     <Modal transparent animationType="none">
-      <Pressable 
-        className="flex-1 justify-end bg-black/50" 
-        onPress={handleClose}
-      >
+      <Pressable className="flex-1 justify-end bg-black/50" onPress={handleClose}>
         <Pressable onPress={(e) => e.stopPropagation()}>
           <Animated.View
             entering={FadeInDown.duration(250).springify()}
             exiting={FadeOutDown.duration(200)}
-            className="rounded-t-3xl bg-white px-6 pb-8 pt-5 shadow-2xl"
-          >
+            className="rounded-t-3xl bg-white px-6 pb-8 pt-5 shadow-2xl">
             {/* Header */}
             <View className="mb-5 flex-row items-center justify-center">
               <View className="h-1 w-12 rounded-full bg-gray-300" />
@@ -176,15 +154,10 @@ export default function AddWishModal({
               {isEdit ? 'Edit Wish' : 'Add Wish'}
             </Text>
 
-            <ScrollView 
-              showsVerticalScrollIndicator={false}
-              keyboardShouldPersistTaps="handled"
-            >
+            <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
               {/* Title Input */}
               <View className="mb-4">
-                <Text className="mb-2 text-xs font-medium text-gray-500">
-                  ITEM NAME
-                </Text>
+                <Text className="mb-2 text-xs font-medium text-gray-500">ITEM NAME</Text>
                 <TextInput
                   placeholder="Snowbyt Echo Mini DAP"
                   value={title}
@@ -197,9 +170,7 @@ export default function AddWishModal({
 
               {/* Link Input */}
               <View className="mb-4">
-                <Text className="mb-2 text-xs font-medium text-gray-500">
-                  LINK (OPTIONAL)
-                </Text>
+                <Text className="mb-2 text-xs font-medium text-gray-500">LINK (OPTIONAL)</Text>
                 <TextInput
                   placeholder="www.label.com"
                   value={link}
@@ -215,17 +186,14 @@ export default function AddWishModal({
               <View className="mb-4 flex-row gap-3">
                 {/* Currency Dropdown */}
                 <View className="relative w-24">
-                  <Text className="mb-2 text-xs font-medium text-gray-500">
-                    CURRENCY
-                  </Text>
+                  <Text className="mb-2 text-xs font-medium text-gray-500">CURRENCY</Text>
                   <Pressable
                     onPress={() => {
                       Haptics.selectionAsync();
                       setShowCurrencyDropdown((v) => !v);
                       setShowCategoryDropdown(false);
                     }}
-                    className="flex-row items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-4 py-3.5"
-                  >
+                    className="flex-row items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-4 py-3.5">
                     <Text className="text-base font-medium">{currency}</Text>
                     <Ionicons name="chevron-down" size={16} color="#6B7280" />
                   </Pressable>
@@ -236,8 +204,7 @@ export default function AddWishModal({
                       entering={FadeIn.duration(150)}
                       exiting={FadeOut.duration(100)}
                       className="absolute left-0 top-20 z-50 w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-2xl"
-                      style={{ elevation: 10 }}
-                    >
+                      style={{ elevation: 10 }}>
                       {CURRENCIES.map((curr, idx) => (
                         <Pressable
                           key={curr}
@@ -248,11 +215,11 @@ export default function AddWishModal({
                           }}
                           className={`flex-row items-center justify-between px-4 py-3 ${
                             idx < CURRENCIES.length - 1 ? 'border-b border-gray-100' : ''
-                          } ${curr === currency ? 'bg-blue-50' : ''}`}
-                        >
-                          <Text className={`text-base ${
-                            curr === currency ? 'font-semibold text-blue-600' : 'text-gray-700'
-                          }`}>
+                          } ${curr === currency ? 'bg-blue-50' : ''}`}>
+                          <Text
+                            className={`text-base ${
+                              curr === currency ? 'font-semibold text-blue-600' : 'text-gray-700'
+                            }`}>
                             {curr}
                           </Text>
                           {curr === currency && (
@@ -266,9 +233,7 @@ export default function AddWishModal({
 
                 {/* Price Input */}
                 <View className="flex-1">
-                  <Text className="mb-2 text-xs font-medium text-gray-500">
-                    PRICE
-                  </Text>
+                  <Text className="mb-2 text-xs font-medium text-gray-500">PRICE</Text>
                   <TextInput
                     placeholder="0"
                     value={price}
@@ -281,25 +246,17 @@ export default function AddWishModal({
                 </View>
               </View>
 
-
-
               {/* Image, Category & Date Section */}
               <View className="mb-6">
-                <Text className="mb-2 text-xs font-medium text-gray-500">
-                  DETAILS
-                </Text>
+                <Text className="mb-2 text-xs font-medium text-gray-500">DETAILS</Text>
                 <View className="flex-row gap-4">
                   {/* Column 1: Image Picker */}
                   <View className="relative h-28 w-28">
                     <Pressable
                       onPress={pickImage}
-                      className="h-full w-full items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-gray-300 bg-gray-50"
-                    >
+                      className="h-full w-full items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-gray-300 bg-gray-50">
                       {image ? (
-                        <Image
-                          source={{ uri: image }}
-                          className="h-full w-full"
-                        />
+                        <Image source={{ uri: image }} className="h-full w-full" />
                       ) : (
                         <View className="items-center">
                           <Ionicons name="camera-outline" size={28} color="#9CA3AF" />
@@ -307,15 +264,14 @@ export default function AddWishModal({
                         </View>
                       )}
                     </Pressable>
-                    
+
                     {image && (
                       <Pressable
                         onPress={removeImage}
                         className="absolute -right-2 -top-2 h-7 w-7 items-center justify-center rounded-full bg-red-500 shadow-lg"
                         style={{
                           elevation: 5,
-                        }}
-                      >
+                        }}>
                         <Ionicons name="close" size={16} color="white" />
                       </Pressable>
                     )}
@@ -331,11 +287,8 @@ export default function AddWishModal({
                           setShowCategoryDropdown((v) => !v);
                           setShowCurrencyDropdown(false);
                         }}
-                        className="flex-row items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-4 py-3"
-                      >
-                        <Text className="text-sm font-medium text-gray-700">
-                          {category}
-                        </Text>
+                        className="flex-row items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
+                        <Text className="text-sm font-medium text-gray-700">{category}</Text>
                         <Ionicons name="chevron-down" size={16} color="#6B7280" />
                       </Pressable>
 
@@ -345,8 +298,7 @@ export default function AddWishModal({
                           entering={FadeIn.duration(150)}
                           exiting={FadeOut.duration(100)}
                           className="absolute left-0 right-0 top-12 z-50 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-2xl"
-                          style={{ elevation: 10 }}
-                        >
+                          style={{ elevation: 10 }}>
                           {CATEGORIES.map((cat, idx) => (
                             <Pressable
                               key={cat}
@@ -357,11 +309,11 @@ export default function AddWishModal({
                               }}
                               className={`flex-row items-center justify-between px-4 py-3 ${
                                 idx < CATEGORIES.length - 1 ? 'border-b border-gray-100' : ''
-                              } ${cat === category ? 'bg-blue-50' : ''}`}
-                            >
-                              <Text className={`text-sm ${
-                                cat === category ? 'font-semibold text-blue-600' : 'text-gray-700'
-                              }`}>
+                              } ${cat === category ? 'bg-blue-50' : ''}`}>
+                              <Text
+                                className={`text-sm ${
+                                  cat === category ? 'font-semibold text-blue-600' : 'text-gray-700'
+                                }`}>
                                 {cat}
                               </Text>
                               {cat === category && (
@@ -376,9 +328,9 @@ export default function AddWishModal({
                     {/* Target Date */}
                     <Pressable
                       onPress={openDatePicker}
-                      className="flex-row items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-4 py-3"
-                    >
-                      <Text className={targetDate ? 'text-sm text-gray-800' : 'text-sm text-gray-400'}>
+                      className="flex-row items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
+                      <Text
+                        className={targetDate ? 'text-sm text-gray-800' : 'text-sm text-gray-400'}>
                         {targetDate
                           ? targetDate.toLocaleDateString('en-US', {
                               month: 'short',
@@ -406,24 +358,9 @@ export default function AddWishModal({
             </ScrollView>
 
             {/* Action Buttons */}
-            <View className="mt-6 flex-row gap-3">
-              <Pressable
-                onPress={handleClose}
-                className="flex-1 items-center rounded-xl border border-gray-300 bg-white py-3.5"
-              >
-                <Text className="text-base font-semibold text-gray-700">
-                  Cancel
-                </Text>
-              </Pressable>
-
-              <Pressable
-                onPress={handleSave}
-                className="flex-1 items-center rounded-xl bg-gray-900 py-3.5 shadow-md"
-              >
-                <Text className="text-base font-semibold text-white">
-                  Save
-                </Text>
-              </Pressable>
+            <View className="mb-400 flex flex-row items-center justify-end gap-200">
+              <Button title="Cancel" variant="ghost" onPress={handleClose} />
+              <Button title="Add Wish" variant="danger" onPress={handleSave} />
             </View>
           </Animated.View>
         </Pressable>

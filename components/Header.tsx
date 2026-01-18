@@ -1,10 +1,11 @@
-import { View, Text } from 'react-native';
+import { View, Image } from 'react-native';
+import logo from '../assets/logo_lettermak.png';
 
 export default function HomeHeader() {
   return (
-    <View className="px-400 pt-400 pb-300">
-      <View className="border-grey1 px-500 py-200 self-start rounded-full border">
-        <Text className="text-foreground text-600 font-semibold">Wishyn</Text>
+    <View className="px-400 pb-300 pt-400">
+      <View className="flex-row gap-200 self-start ">
+        <Image source={logo} className="h-700 w-700" resizeMode="contain" />
       </View>
     </View>
   );

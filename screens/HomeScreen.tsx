@@ -1,8 +1,16 @@
-import { View, FlatList, TextInput, Pressable, Linking, Text, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
+import {
+  View,
+  FlatList,
+  TextInput,
+  Pressable,
+  Linking,
+  Text,
+  Platform,
+  Keyboard,
+} from 'react-native';
 import { useEffect, useState } from 'react';
-import Animated, { 
+import Animated, {
   FadeIn,
-  FadeOut,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
@@ -26,7 +34,7 @@ export default function HomeScreen() {
   const [showAdd, setShowAdd] = useState(false);
   const [editWish, setEditWish] = useState<Wish | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  
+
   // Search & Filter State
   const [searchExpanded, setSearchExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -56,9 +64,9 @@ export default function HomeScreen() {
   useEffect(() => {
     storageService.loadWishes().then((loadedWishes) => {
       // Ensure all wishes have isPurchased property
-      const wishesWithDefaults = loadedWishes.map(wish => ({
+      const wishesWithDefaults = loadedWishes.map((wish) => ({
         ...wish,
-        isPurchased: wish.isPurchased ?? false
+        isPurchased: wish.isPurchased ?? false,
       }));
       setWishes(wishesWithDefaults);
     });
@@ -71,9 +79,9 @@ export default function HomeScreen() {
   // Filter wishes based on search and categories
   const filteredWishes = wishes.filter((wish) => {
     const matchesSearch = wish.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategories.length === 0 || 
-      selectedCategories.includes(wish.category as Category);
-    
+    const matchesCategory =
+      selectedCategories.length === 0 || selectedCategories.includes(wish.category as Category);
+
     return matchesSearch && matchesCategory;
   });
 
@@ -84,7 +92,7 @@ export default function HomeScreen() {
     } catch (e) {
       // Haptics not available
     }
-    
+
     if (searchExpanded) {
       // Collapse
       setSearchQuery('');
@@ -92,7 +100,7 @@ export default function HomeScreen() {
     } else {
       // Expand - do nothing, just state change
     }
-    
+
     setSearchExpanded(!searchExpanded);
   };
 
@@ -104,31 +112,27 @@ export default function HomeScreen() {
       // Haptics not available
     }
     setSelectedCategories((prev) =>
-      prev.includes(category)
-        ? prev.filter((c) => c !== category)
-        : [...prev, category]
+      prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]
     );
   };
 
   // Handle wish actions
   const handleTogglePurchase = (wishId: string) => {
     setWishes((prev) =>
-      prev.map((w) =>
-        w.id === wishId ? { ...w, isPurchased: !(w.isPurchased ?? false) } : w
-      )
+      prev.map((w) => (w.id === wishId ? { ...w, isPurchased: !(w.isPurchased ?? false) } : w))
     );
   };
 
   const handleOpenLink = (link?: string) => {
     if (link) {
       const url = link.startsWith('http') ? link : `https://${link}`;
-      Linking.openURL(url).catch(err => console.log('Error opening link:', err));
+      Linking.openURL(url).catch((err) => console.log('Error opening link:', err));
     }
   };
 
   const animatedBottomStyle = useAnimatedStyle(() => {
     return {
-      bottom: 16 + keyboardOffset.value,
+      bottom: 32 + keyboardOffset.value,
     };
   });
 
@@ -139,13 +143,12 @@ export default function HomeScreen() {
 
       {/* CONTENT */}
       {filteredWishes.length === 0 ? (
-        <EmptyState 
-          onAdd={() => setShowAdd(true)}
-        />
+        <EmptyState onAdd={() => setShowAdd(true)} />
       ) : (
         <FlatList
           data={filteredWishes}
           keyExtractor={(item) => item.id}
+          ItemSeparatorComponent={() => <View className="h-300" />}
           renderItem={({ item }) => (
             <WishCard
               wish={item}
@@ -162,40 +165,37 @@ export default function HomeScreen() {
           showsVerticalScrollIndicator={false}
         />
       )}
-      
-      <Animated.View style={[animatedBottomStyle]} className='absolute flex flex-row w-full right-0'>
-        <View className='w-[80%] px-2 h-[100%]'>
+
+      <Animated.View
+        style={[animatedBottomStyle]}
+        className="absolute right-0 flex w-full flex-row">
+        <View className="h-[100%] w-[80%] px-2">
           {searchExpanded && (
             <Animated.View
-                entering={FadeIn.duration(200)}
-                className={'flex flex-col justify-between h-[100%]'}
-              >
-                <View className='flex flex-row justify-between'>
-                  {CATEGORIES.map((category) => {
-              const isSelected = selectedCategories.includes(category);
-              return (
-                <Pressable
-                  key={category}
-                  onPress={() => toggleCategory(category)}
-                  className={`rounded-full border px-4 py-2 ${
-                    isSelected
-                      ? 'border-gray-800 bg-gray-800'
-                      : 'border-gray-300 bg-white'
-                  }`}
-                >
-                  <Text
-                    className={`text-sm font-medium ${
-                      isSelected ? 'text-white' : 'text-gray-700'
-                    }`}
-                  >
-                    {category}
-                  </Text>
-                </Pressable>
-              );
-            })}
-                </View>
-                <View className="flex flex-row items-center rounded-2xl border border-gray-200 bg-white px-4 py-2 mt-auto">
-                  <Ionicons name="search" size={20} color="#9CA3AF" />
+              entering={FadeIn.duration(200)}
+              className={'flex h-[100%] flex-col justify-between'}>
+              <View className="flex flex-row justify-between">
+                {CATEGORIES.map((category) => {
+                  const isSelected = selectedCategories.includes(category);
+                  return (
+                    <Pressable
+                      key={category}
+                      onPress={() => toggleCategory(category)}
+                      className={`rounded-full border px-4 py-2 ${
+                        isSelected ? 'border-gray-800 bg-gray-800' : 'border-gray-300 bg-white'
+                      }`}>
+                      <Text
+                        className={`text-sm font-medium ${
+                          isSelected ? 'text-white' : 'text-gray-700'
+                        }`}>
+                        {category}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+              <View className="mt-auto flex flex-row items-center rounded-2xl border border-gray-200 bg-white px-4 py-2">
+                <Ionicons name="search" size={20} color="#9CA3AF" />
                 <TextInput
                   value={searchQuery}
                   onChangeText={setSearchQuery}
@@ -204,35 +204,32 @@ export default function HomeScreen() {
                   autoFocus
                   className="ml-2 flex-1 text-base"
                 />
-                </View>
-                
-              </Animated.View>
+              </View>
+            </Animated.View>
           )}
         </View>
-        <View className='flex flex-col gap-2 px-2'>
-           <Pressable onPress={toggleSearch} className="h-14 w-14 items-center justify-center rounded-2xl bg-gray-200 flex-row gap-2">
-              {searchExpanded ? <Ionicons name="close" size={20} color="#374151" /> : <Ionicons name="search" size={20} color="#374151" />}
+        <View className="flex flex-col gap-2">
+          <Pressable
+            onPress={toggleSearch}
+            className="h-750 w-750 -right-100 flex-row items-center justify-center gap-300 rounded-2xl bg-highlight">
+            {searchExpanded ? (
+              <Ionicons name="close" size={20} color="#374151" />
+            ) : (
+              <Ionicons name="search" size={20} color="#374151" />
+            )}
           </Pressable>
           <Pressable
-          onPress={async () => {
-            try {
-              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            } catch (e) {
-              // Haptics not available
-            }
-            setShowAdd(true);
-          }}
-          className="h-14 w-14 items-center justify-center rounded-full bg-orange-500 shadow-lg"
-          style={{
-            shadowColor: '#F97316',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.3,
-            shadowRadius: 8,
-            elevation: 8,
-          }}
-        >
-          <Ionicons name="add" size={28} color="white" />
-        </Pressable>
+            onPress={async () => {
+              try {
+                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              } catch (e) {
+                // Haptics not available
+              }
+              setShowAdd(true);
+            }}
+            className="right-200 h-800 w-800 items-center justify-center rounded-600 bg-accent">
+            <Ionicons name="add" size={32} color="white" />
+          </Pressable>
         </View>
       </Animated.View>
 

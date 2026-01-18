@@ -39,6 +39,9 @@ module.exports = {
         warning: 'hsl(var(--warning))',
         'warning-fg': 'hsl(var(--warning-fg))',
 
+        border: 'hsl(var(--border))',
+        'border-dark': 'hsl(var(--border-dark))',
+
         grey1: 'hsl(var(--grey-1))',
         'grey1-fg': 'hsl(var(--grey-1-fg))',
       },
@@ -52,7 +55,9 @@ module.exports = {
         400: 'var(--spacing-400)',
         500: 'var(--spacing-500)',
         600: 'var(--spacing-600)',
+        650: 'var(--spacing-650)',
         700: 'var(--spacing-700)',
+        750: 'var(--spacing-750)',
         800: 'var(--spacing-800)',
         850: 'var(--spacing-850)',
         900: 'var(--spacing-900)',
@@ -77,6 +82,7 @@ module.exports = {
         600: 'var(--radius-600)',
         700: 'var(--radius-700)',
         800: 'var(--radius-800)',
+        900: 'var(--radius-900)',
         full: 'var(--radius-full)',
       },
 
