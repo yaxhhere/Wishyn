@@ -176,7 +176,10 @@ export default function HomeScreen() {
         />
       )}
 
-      <Animated.View style={animatedBottomStyle} className="absolute right-0 flex w-full flex-row">
+      <Animated.View
+        pointerEvents="box-none"
+        style={animatedBottomStyle}
+        className="absolute right-0 flex w-full flex-row">
         <View className="h-[100%] w-[80%] px-2">
           {searchExpanded && (
             <Animated.View
