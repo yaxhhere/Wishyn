@@ -142,7 +142,7 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
             className="rounded-800 rounded-b-none bg-background p-400 shadow-2xl">
             {/* Header */}
             <View className="mb-400 flex-row items-center justify-center">
-              <View className="bg-border h-1 w-12 rounded-full" />
+              <View className="h-1 w-12 rounded-full bg-border" />
             </View>
 
             <Text className="mb-400 text-center text-lg font-semibold text-gray-800">
@@ -199,7 +199,7 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
                   <View className="relative h-28 w-28">
                     <Pressable
                       onPress={pickImage}
-                      className="border-border h-full w-full items-center justify-center overflow-hidden rounded-xl border-2 border-solid  bg-background-sec">
+                      className="h-full w-full items-center justify-center overflow-hidden rounded-xl border-2 border-solid border-border  bg-background-sec">
                       {image ? (
                         <Image source={{ uri: image }} className="h-full w-full" />
                       ) : (
@@ -241,7 +241,7 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
                         <Animated.View
                           entering={FadeIn.duration(150)}
                           exiting={FadeOut.duration(100)}
-                          className="border-border absolute bottom-0 left-0 right-0 z-50 overflow-hidden rounded-600 border-2  bg-background p-400 shadow-2xl"
+                          className="absolute bottom-0 left-0 right-0 z-50 overflow-hidden rounded-600 border-2 border-border  bg-background p-400 shadow-2xl"
                           style={{ elevation: 10 }}>
                           {CATEGORIES.map((cat, idx) => (
                             <Pressable

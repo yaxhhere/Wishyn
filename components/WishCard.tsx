@@ -1,9 +1,9 @@
-import { View, Text, Image, Pressable } from 'react-native';
+import { View, Text, Modal, Image, Pressable, Clipboard, Platform } from 'react-native';
 import { useState } from 'react';
 import * as Haptics from 'expo-haptics';
 import { Wish } from 'types';
 import { Ionicons } from '@expo/vector-icons';
-import { Pencil } from 'lucide-react-native';
+import * as ClipboardExpo from 'expo-clipboard';
 
 interface Props {
   wish: Wish;
@@ -15,6 +15,7 @@ interface Props {
 
 export default function WishCard({ wish, onEdit, onDelete, onTogglePurchase, onOpenLink }: Props) {
   const [expanded, setExpanded] = useState(false);
+  const [showLinkModal, setShowLinkModal] = useState(false);
 
   // Safety check
   if (!wish) return null;
@@ -90,7 +91,7 @@ export default function WishCard({ wish, onEdit, onDelete, onTogglePurchase, onO
                   resizeMode="cover"
                 />
               ) : (
-                <View className="border-border h-24 w-24 items-center justify-center rounded-600 border-2 ">
+                <View className="h-24 w-24 items-center justify-center rounded-600 border-2 border-border ">
                   <Ionicons name="image-outline" size={28} color="#9CA3AF" />
                 </View>
               )}
@@ -117,12 +118,8 @@ export default function WishCard({ wish, onEdit, onDelete, onTogglePurchase, onO
             {wish.link && (
               <Pressable
                 onPress={async () => {
-                  try {
-                    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  } catch (e) {
-                    // Haptics not available
-                  }
-                  onOpenLink();
+                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  setShowLinkModal(true);
                 }}>
                 <Ionicons name="link" size={22} color="#374151" />
               </Pressable>
@@ -165,6 +162,56 @@ export default function WishCard({ wish, onEdit, onDelete, onTogglePurchase, onO
           </View>
         </View>
       </View>
+      {/* Link Modal */}
+      <Modal visible={showLinkModal} transparent animationType="fade">
+        <Pressable
+          className="flex-1 justify-end bg-black/40"
+          onPress={() => setShowLinkModal(false)}>
+          <Pressable onPress={(e) => e.stopPropagation()}>
+            <View className="rounded-t-800 bg-background px-400 py-400 shadow-2xl">
+              {/* Drag Handle */}
+              <View className="mb-300 items-center">
+                <View className="h-1 w-12 rounded-full bg-border" />
+              </View>
+
+              {/* Link text */}
+              <Text numberOfLines={1} ellipsizeMode="tail" className="mb-400 text-400 text-muted">
+                {wish.link}
+              </Text>
+
+              {/* Actions */}
+              <View className="gap-100">
+                <Pressable
+                  onPress={() => {
+                    setShowLinkModal(false);
+                    onOpenLink();
+                  }}
+                  className="flex-row items-center gap-100 rounded-600 px-400 py-350">
+                  <Ionicons name="open-outline" size={20} color="hsl(var(--foreground))" />
+                  <Text className="font-medium text-foreground">Open link</Text>
+                </Pressable>
+
+                <Pressable
+                  onPress={async () => {
+                    await ClipboardExpo.setStringAsync(wish.link || '');
+                    setShowLinkModal(false);
+                  }}
+                  className="flex-row items-center gap-300 rounded-600 px-400 py-350">
+                  <Ionicons name="copy-outline" size={18} color="hsl(var(--foreground))" />
+                  <Text className="font-medium text-foreground">Copy link</Text>
+                </Pressable>
+
+                <Pressable
+                  onPress={() => setShowLinkModal(false)}
+                  className="flex-row items-center gap-300 rounded-600 px-400 py-350">
+                  <Ionicons name="close" size={18} color="#EF4444" />
+                  <Text className="font-medium text-danger">Close</Text>
+                </Pressable>
+              </View>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
