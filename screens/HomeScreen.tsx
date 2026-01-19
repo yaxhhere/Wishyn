@@ -7,6 +7,7 @@ import {
   Text,
   Platform,
   Keyboard,
+  ScrollView,
 } from 'react-native';
 import { useEffect, useState } from 'react';
 import Animated, {
@@ -27,7 +28,7 @@ import ConfirmDeleteModal from 'components/ConfirmDeleteModal';
 import { Wish, Category } from 'types';
 import { storageService } from 'utils/storage';
 
-const CATEGORIES: Category[] = ['Electronics', 'Books', 'Furniture', 'Other'];
+const CATEGORIES: Category[] = ['Electronics', 'Books', 'Furniture', 'Unspecified'];
 
 export default function HomeScreen() {
   const [wishes, setWishes] = useState<Wish[]>([]);
@@ -173,16 +174,20 @@ export default function HomeScreen() {
           {searchExpanded && (
             <Animated.View
               entering={FadeIn.duration(200)}
-              className={'flex h-[100%] flex-col justify-between'}>
-              <View className="flex flex-row justify-between">
+              className={'flex h-[100%] flex-col justify-between overflow-hidden'}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ gap: 4, alignItems: 'center' }}
+                className="h-[50%]">
                 {CATEGORIES.map((category) => {
                   const isSelected = selectedCategories.includes(category);
                   return (
                     <Pressable
                       key={category}
                       onPress={() => toggleCategory(category)}
-                      className={`rounded-full border px-4 py-2 ${
-                        isSelected ? 'border-gray-800 bg-gray-800' : 'border-gray-300 bg-white'
+                      className={`h-[32px] rounded-full border px-4 py-2 ${
+                        isSelected ? 'border-0 bg-primary' : 'border-border-dark bg-background-sec'
                       }`}>
                       <Text
                         className={`text-sm font-medium ${
@@ -193,8 +198,8 @@ export default function HomeScreen() {
                     </Pressable>
                   );
                 })}
-              </View>
-              <View className="mt-auto flex flex-row items-center rounded-2xl border border-gray-200 bg-white px-4 py-2">
+              </ScrollView>
+              <View className="mt-auto flex flex-row items-center rounded-2xl border border-border bg-background px-4 py-2">
                 <Ionicons name="search" size={20} color="#9CA3AF" />
                 <TextInput
                   value={searchQuery}
@@ -211,7 +216,7 @@ export default function HomeScreen() {
         <View className="flex flex-col gap-2">
           <Pressable
             onPress={toggleSearch}
-            className="h-750 w-750 -right-100 flex-row items-center justify-center gap-300 rounded-2xl bg-highlight">
+            className="-right-100 h-750 w-750 flex-row items-center justify-center gap-300 rounded-2xl bg-highlight">
             {searchExpanded ? (
               <Ionicons name="close" size={20} color="#374151" />
             ) : (
