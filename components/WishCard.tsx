@@ -1,4 +1,4 @@
-import { View, Text, Modal, Image, Pressable, Clipboard, Platform } from 'react-native';
+import { View, Text, Modal, Image, Pressable, Clipboard } from 'react-native';
 import { useState } from 'react';
 import * as Haptics from 'expo-haptics';
 import { Wish } from 'types';
@@ -42,7 +42,7 @@ export default function WishCard({ wish, onEdit, onDelete, onTogglePurchase, onO
 
   return (
     <View
-      className={`mx-4 overflow-hidden rounded-800 border border-gray-200 bg-white pt-2 shadow-lg`}>
+      className={`mx-4 overflow-hidden rounded-800 border border-border bg-background pt-2 shadow-lg`}>
       {/* Collapsed State */}
 
       <View className="flex flex-col gap-200 px-400 py-300">
@@ -51,7 +51,7 @@ export default function WishCard({ wish, onEdit, onDelete, onTogglePurchase, onO
           <Pressable onPress={handleCheckbox} className="mr-3">
             <View
               className={`h-6 w-6 items-center justify-center rounded-md border-2 ${
-                isPurchased ? 'border-teal-600 bg-teal-600' : 'border-gray-300 bg-white'
+                isPurchased ? 'border-primary bg-primary' : 'border-border bg-background'
               }`}>
               {isPurchased && <Ionicons name="checkmark" size={16} color="white" />}
             </View>
@@ -62,7 +62,7 @@ export default function WishCard({ wish, onEdit, onDelete, onTogglePurchase, onO
             <Text
               numberOfLines={1}
               className={`text-[18px] font-bold ${
-                isPurchased ? 'text-gray-400 line-through' : 'text-gray-800'
+                isPurchased ? 'text-muted line-through' : 'text-foreground'
               }`}>
               {wish.title}
             </Text>
@@ -75,7 +75,7 @@ export default function WishCard({ wish, onEdit, onDelete, onTogglePurchase, onO
           </View>
 
           {/* Expand Icon */}
-          <Pressable onPress={toggleExpand} className="ml-3">
+          <Pressable onPress={toggleExpand} className="ml-300">
             <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={24} color="#6B7280" />
           </Pressable>
         </Pressable>
@@ -97,7 +97,7 @@ export default function WishCard({ wish, onEdit, onDelete, onTogglePurchase, onO
               )}
 
               {/* Category Badge */}
-              {wish.category && wish.category.toLowerCase() != 'other' && (
+              {wish.category && wish.category.toLowerCase() !== 'unspecified' && (
                 <View className="rounded-full bg-highlight px-400 py-300">
                   <Text className="text-200 text-foreground">{wish.category}</Text>
                 </View>
@@ -107,8 +107,8 @@ export default function WishCard({ wish, onEdit, onDelete, onTogglePurchase, onO
         )}
         <View className="flex flex-row justify-between">
           {/* Price Badge */}
-          <View className="mb-4 self-start rounded-full bg-teal-600 px-5 py-2">
-            <Text className="text-lg font-semibold text-white">
+          <View className="mb-4 self-start rounded-full bg-primary px-400 py-300">
+            <Text className="text-lg font-semibold text-primary-fg">
               {wish.currency} {wish.price}
             </Text>
           </View>
