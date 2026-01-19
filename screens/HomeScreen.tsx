@@ -132,9 +132,18 @@ export default function HomeScreen() {
   };
 
   const animatedBottomStyle = useAnimatedStyle(() => {
-    return {
-      bottom: 32 + keyboardOffset.value,
-    };
+    const isKeyboardOpen = keyboardOffset.value > 0;
+
+    if (searchExpanded && isKeyboardOpen) {
+      return { bottom: keyboardOffset.value - 32 };
+    }
+
+    if (searchExpanded && !isKeyboardOpen) {
+      return { bottom: 32 };
+    }
+
+    // search closed + keyboard closed
+    return { bottom: 32 };
   });
 
   return (
@@ -167,9 +176,7 @@ export default function HomeScreen() {
         />
       )}
 
-      <Animated.View
-        style={[animatedBottomStyle]}
-        className="absolute right-0 flex w-full flex-row">
+      <Animated.View style={animatedBottomStyle} className="absolute right-0 flex w-full flex-row">
         <View className="h-[100%] w-[80%] px-2">
           {searchExpanded && (
             <Animated.View
