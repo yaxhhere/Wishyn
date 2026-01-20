@@ -18,7 +18,9 @@ export default function ConfirmDeleteModal({ visible, onConfirm, onCancel }: Pro
           entering={FadeInDown.duration(250)}
           exiting={FadeOutDown.duration(200)}
           className="rounded-t-800 bg-background-sec px-5 pb-8 pt-6">
-          <Text className="text-textPrimary mb-2 text-lg font-semibold">Delete wish?</Text>
+          <Text className="text-textPrimary mb-2 text-center text-lg font-semibold">
+            Delete wish?
+          </Text>
 
           <Text className="text-textSecondary mb-6">This action cannot be undone.</Text>
 

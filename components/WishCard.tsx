@@ -4,6 +4,8 @@ import * as Haptics from 'expo-haptics';
 import { Wish } from 'types';
 import { Ionicons } from '@expo/vector-icons';
 import * as ClipboardExpo from 'expo-clipboard';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 interface Props {
   wish: Wish;
@@ -105,9 +107,9 @@ export default function WishCard({ wish, onEdit, onDelete, onTogglePurchase, onO
             </View>
           </View>
         )}
-        <View className="flex flex-row justify-between">
+        <View className="flex flex-row items-center justify-between pb-200">
           {/* Price Badge */}
-          <View className="mb-4 self-start rounded-full bg-primary px-400 py-300">
+          <View className="rounded-full bg-primary px-400 py-300">
             <Text className="text-lg font-semibold text-primary-fg">
               {wish.currency} {wish.price}
             </Text>
@@ -121,7 +123,7 @@ export default function WishCard({ wish, onEdit, onDelete, onTogglePurchase, onO
                   await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                   setShowLinkModal(true);
                 }}>
-                <Ionicons name="link" size={22} color="#374151" />
+                <AntDesign name="link" size={20} color="hsl(var(--background))" />
               </Pressable>
             )}
 
@@ -134,7 +136,7 @@ export default function WishCard({ wish, onEdit, onDelete, onTogglePurchase, onO
                 }
                 onEdit();
               }}>
-              <Ionicons name="pencil" size={20} color="#374151" />
+              <MaterialIcons name="edit" size={22} color="hsl(var(--background))" />
             </Pressable>
 
             <Pressable
@@ -146,10 +148,10 @@ export default function WishCard({ wish, onEdit, onDelete, onTogglePurchase, onO
                 }
                 onDelete();
               }}>
-              <Ionicons name="trash" size={22} color="#EF4444" />
+              <MaterialIcons name="delete" size={24} color="hsl(13, 82%, 58%)" />
             </Pressable>
 
-            <Pressable
+            {/* <Pressable
               onPress={async () => {
                 try {
                   await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -158,7 +160,7 @@ export default function WishCard({ wish, onEdit, onDelete, onTogglePurchase, onO
                 }
               }}>
               <Ionicons name="ellipsis-vertical" size={22} color="#374151" />
-            </Pressable>
+            </Pressable> */}
           </View>
         </View>
       </View>

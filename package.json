@@ -13,7 +13,6 @@
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-native-community/datetimepicker": "github:react-native-community/datetimepicker",
-    "@react-native-vector-icons/material-design-icons": "^12.4.0",
     "clsx": "^2.1.1",
     "expo": "^54.0.0",
     "expo-clipboard": "^8.0.8",
