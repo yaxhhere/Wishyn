@@ -18,7 +18,6 @@ import Animated, {
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
 
-import HomeHeader from 'components/Header';
 import WishCard from 'components/WishCard';
 import EmptyState from 'components/EmptyState';
 import AddWishModal from 'components/AddWishModel';
@@ -35,40 +34,48 @@ export default function HomeScreen() {
   const [editWish, setEditWish] = useState<Wish | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  // Search & Filter State
+  // Search & Filter
   const [searchExpanded, setSearchExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
-  const keyboardOffset = useSharedValue(0);
 
+  /* 🔥 Keyboard animation value */
+  const keyboardTranslateY = useSharedValue(0);
+
+  /* -------------------- KEYBOARD HANDLING -------------------- */
   useEffect(() => {
-    const keyboardWillShow = Keyboard.addListener(
+    const showSub = Keyboard.addListener(
       Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
       (e) => {
-        keyboardOffset.value = withTiming(e.endCoordinates.height, { duration: 250 });
+        const MAX_SHIFT = 220;
+        const shift = Math.min(e.endCoordinates.height - 40, MAX_SHIFT);
+
+        keyboardTranslateY.value = withTiming(-shift, { duration: 250 });
       }
     );
-    const keyboardWillHide = Keyboard.addListener(
+
+    const hideSub = Keyboard.addListener(
       Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
       () => {
-        keyboardOffset.value = withTiming(0, { duration: 250 });
+        keyboardTranslateY.value = withTiming(0, { duration: 250 });
       }
     );
 
     return () => {
-      keyboardWillShow.remove();
-      keyboardWillHide.remove();
+      showSub.remove();
+      hideSub.remove();
     };
   }, []);
 
+  /* -------------------- LOAD / SAVE -------------------- */
   useEffect(() => {
-    storageService.loadWishes().then((loadedWishes) => {
-      // Ensure all wishes have isPurchased property
-      const wishesWithDefaults = loadedWishes.map((wish) => ({
-        ...wish,
-        isPurchased: wish.isPurchased ?? false,
-      }));
-      setWishes(wishesWithDefaults);
+    storageService.loadWishes().then((loaded) => {
+      setWishes(
+        loaded.map((w) => ({
+          ...w,
+          isPurchased: w.isPurchased ?? false,
+        }))
+      );
     });
   }, []);
 
@@ -76,7 +83,7 @@ export default function HomeScreen() {
     storageService.saveWishes(wishes);
   }, [wishes]);
 
-  // Filter wishes based on search and categories
+  /* -------------------- FILTER -------------------- */
   const filteredWishes = wishes.filter((wish) => {
     const matchesSearch = wish.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory =
@@ -85,62 +92,48 @@ export default function HomeScreen() {
     return matchesSearch && matchesCategory;
   });
 
-  // Toggle search expansion
+  /* -------------------- HANDLERS -------------------- */
   const toggleSearch = async () => {
     try {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    } catch (e) {
-      // Haptics not available
-    }
+    } catch {}
 
     if (searchExpanded) {
-      // Collapse
       setSearchQuery('');
       setSelectedCategories([]);
-    } else {
-      // Expand - do nothing, just state change
     }
 
-    setSearchExpanded(!searchExpanded);
+    setSearchExpanded((p) => !p);
   };
 
-  // Toggle category filter
   const toggleCategory = async (category: Category) => {
     try {
       await Haptics.selectionAsync();
-    } catch (e) {
-      // Haptics not available
-    }
+    } catch {}
+
     setSelectedCategories((prev) =>
       prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]
     );
   };
 
-  // Handle wish actions
-  const handleTogglePurchase = (wishId: string) => {
-    setWishes((prev) =>
-      prev.map((w) => (w.id === wishId ? { ...w, isPurchased: !(w.isPurchased ?? false) } : w))
-    );
+  const handleTogglePurchase = (id: string) => {
+    setWishes((prev) => prev.map((w) => (w.id === id ? { ...w, isPurchased: !w.isPurchased } : w)));
   };
 
   const handleOpenLink = (link?: string) => {
-    if (link) {
-      const url = link.startsWith('http') ? link : `https://${link}`;
-      Linking.openURL(url).catch((err) => console.log('Error opening link:', err));
-    }
+    if (!link) return;
+    const url = link.startsWith('http') ? link : `https://${link}`;
+    Linking.openURL(url).catch(() => {});
   };
 
-  const animatedBottomStyle = useAnimatedStyle(() => {
-    return {
-      bottom: 32 + keyboardOffset.value,
-    };
-  });
+  /* -------------------- ANIMATION -------------------- */
+  const floatingStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: keyboardTranslateY.value }],
+  }));
 
+  /* -------------------- UI -------------------- */
   return (
     <View className="flex-1">
-      {/* HEADER */}
-      <HomeHeader />
-
       {/* CONTENT */}
       {filteredWishes.length === 0 ? (
         <EmptyState onAdd={() => setShowAdd(true)} />
@@ -158,35 +151,36 @@ export default function HomeScreen() {
               }}
               onDelete={() => setDeleteId(item.id)}
               onTogglePurchase={() => handleTogglePurchase(item.id)}
-              onOpenLink={() => handleOpenLink(item.link || '')}
+              onOpenLink={() => handleOpenLink(item.link)}
             />
           )}
-          contentContainerStyle={{ paddingBottom: 100 }}
+          contentContainerStyle={{ paddingBottom: 120 }}
           showsVerticalScrollIndicator={false}
         />
       )}
 
+      {/* FLOATING SEARCH + ACTIONS */}
       <Animated.View
-        style={[animatedBottomStyle]}
-        className="absolute right-0 flex w-full flex-row">
+        style={floatingStyle}
+        className="absolute bottom-8 right-0 flex w-full flex-row">
         <View className="h-[100%] w-[80%] px-2">
           {searchExpanded && (
             <Animated.View
               entering={FadeIn.duration(200)}
-              className={'flex h-[100%] flex-col justify-between'}>
+              className="flex h-[100%] flex-col justify-between">
               <View className="flex flex-row justify-between">
                 {CATEGORIES.map((category) => {
-                  const isSelected = selectedCategories.includes(category);
+                  const selected = selectedCategories.includes(category);
                   return (
                     <Pressable
                       key={category}
                       onPress={() => toggleCategory(category)}
                       className={`rounded-full border px-4 py-2 ${
-                        isSelected ? 'border-gray-800 bg-gray-800' : 'border-gray-300 bg-white'
+                        selected ? 'border-gray-800 bg-gray-800' : 'border-gray-300 bg-white'
                       }`}>
                       <Text
                         className={`text-sm font-medium ${
-                          isSelected ? 'text-white' : 'text-gray-700'
+                          selected ? 'text-white' : 'text-gray-700'
                         }`}>
                         {category}
                       </Text>
@@ -194,6 +188,7 @@ export default function HomeScreen() {
                   );
                 })}
               </View>
+
               <View className="mt-auto flex flex-row items-center rounded-2xl border border-gray-200 bg-white px-4 py-2">
                 <Ionicons name="search" size={20} color="#9CA3AF" />
                 <TextInput
@@ -208,27 +203,23 @@ export default function HomeScreen() {
             </Animated.View>
           )}
         </View>
+
         <View className="flex flex-col gap-2">
           <Pressable
             onPress={toggleSearch}
-            className="h-750 w-750 -right-100 flex-row items-center justify-center gap-300 rounded-2xl bg-highlight">
-            {searchExpanded ? (
-              <Ionicons name="close" size={20} color="#374151" />
-            ) : (
-              <Ionicons name="search" size={20} color="#374151" />
-            )}
+            className="h-[56px] w-[56px] items-center justify-center rounded-600 bg-highlight">
+            <Ionicons name={searchExpanded ? 'close' : 'search'} size={20} color="#374151" />
           </Pressable>
+
           <Pressable
             onPress={async () => {
               try {
                 await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-              } catch (e) {
-                // Haptics not available
-              }
+              } catch {}
               setShowAdd(true);
             }}
-            className="right-200 h-800 w-800 items-center justify-center rounded-600 bg-accent">
-            <Ionicons name="add" size={32} color="white" />
+            className="h-[56px] w-[56px] items-center justify-center rounded-600 bg-accent">
+            <Ionicons name="add" size={30} color="white" />
           </Pressable>
         </View>
       </Animated.View>

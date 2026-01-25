@@ -6,6 +6,9 @@ import HomeScreen from 'screens/HomeScreen';
 import BottomNavigation from 'components/BottomNavigation';
 import './global.css';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import ProfileScreen from 'screens/ProfileScreen';
+import HomeHeader from 'components/Header';
+import { CurrencyProvider } from 'utils/context/currency';
 
 export default function App() {
   const [activeScreen, setActiveScreen] = useState('home');
@@ -16,8 +19,8 @@ export default function App() {
         return <HomeScreen />;
       // case 'archive':
       //   return <ArchiveScreen />;
-      // case 'profile':
-      //   return <ProfileScreen />;
+      case 'profile':
+        return <ProfileScreen />;
       default:
         return <HomeScreen />;
     }
@@ -25,13 +28,12 @@ export default function App() {
 
   return (
     <SafeAreaView className="flex-1 flex-col bg-background">
-      <View className="h-[92%] w-full">
-        {renderScreen()}
-      </View>
-      <BottomNavigation 
-        activeScreen={activeScreen}
-        onNavigate={setActiveScreen}
-      />
+      {/* HEADER */}
+      <CurrencyProvider>
+        <HomeHeader />
+        <View className="h-[80%] w-full">{renderScreen()}</View>
+        <BottomNavigation activeScreen={activeScreen} onNavigate={setActiveScreen} />
+      </CurrencyProvider>
     </SafeAreaView>
   );
 }
