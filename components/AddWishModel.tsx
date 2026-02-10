@@ -15,7 +15,14 @@ import { useCurrency } from 'utils/context/currency';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
-const DEFAULT_CATEGORIES: Category[] = ['Electronics', 'Books', 'Furniture', 'Unspecified'];
+const DEFAULT_CATEGORIES: Category[] = [
+  'Electronics',
+  'Books',
+  'Furniture',
+  'Bucket',
+  'Games',
+  'Unspecified',
+];
 
 const CURRENCIES: { code: Currency; symbol: string }[] = [
   { code: 'INR', symbol: '₹' },
@@ -521,5 +528,4 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
       </Modal>
     </ScrollView>
   );
-
 }

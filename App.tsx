@@ -9,7 +9,7 @@ import { CurrencyProvider } from 'utils/context/currency';
 import WishesScreen from 'screens/WishesScreen';
 
 export default function App() {
-  const [activeScreen, setActiveScreen] = useState('home');
+  const [activeScreen, setActiveScreen] = useState('wishes');
 
   const renderScreen = () => {
     switch (activeScreen) {

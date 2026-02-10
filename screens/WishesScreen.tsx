@@ -134,7 +134,7 @@ export default function WishesScreen() {
     const isKeyboardOpen = keyboardOffset.value > 0;
 
     if (searchExpanded && isKeyboardOpen) {
-      return { bottom: keyboardOffset.value - 32 };
+      return { bottom: keyboardOffset.value - 64 };
     }
 
     if (searchExpanded && !isKeyboardOpen) {
@@ -177,73 +177,100 @@ export default function WishesScreen() {
       <Animated.View
         pointerEvents="box-none"
         style={animatedBottomStyle}
-        className="absolute right-0 flex w-full flex-row">
-        <View className="h-[100%] w-[80%] px-2">
+        className="absolute w-full px-4">
+        <Animated.View
+          pointerEvents="box-none"
+          entering={FadeIn.duration(200)}
+          className={
+            searchExpanded === true
+              ? 'w-full flex-col items-center justify-end rounded-600 border border-border bg-grey1 p-300'
+              : 'w-full flex-col items-center justify-end'
+          }>
+          {/* Categories */}
           {searchExpanded && (
-            <Animated.View
-              entering={FadeIn.duration(200)}
-              className={'flex h-[100%] flex-col justify-between overflow-hidden'}>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ gap: 4, alignItems: 'center' }}
-                className="h-[50%]">
-                {CATEGORIES.map((category) => {
-                  const isSelected = selectedCategories.includes(category);
-                  return (
-                    <Pressable
-                      key={category}
-                      onPress={() => toggleCategory(category)}
-                      className={`h-[32px] rounded-full border px-4 py-2 ${
-                        isSelected ? 'border-0 bg-primary' : 'border-border-dark bg-background-sec'
+            <ScrollView
+              horizontal
+              keyboardShouldPersistTaps="handled"
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ gap: 6, alignItems: 'center' }}>
+              {CATEGORIES.map((category) => {
+                const isSelected = selectedCategories.includes(category);
+
+                return (
+                  <Pressable
+                    key={category}
+                    onPress={() => toggleCategory(category)}
+                    className={`h-[32px] justify-center rounded-full border px-4 ${
+                      isSelected ? 'border-0 bg-primary' : 'border-border-dark bg-background-sec'
+                    }`}>
+                    <Text
+                      className={`text-sm font-medium ${
+                        isSelected ? 'text-white' : 'text-foreground'
                       }`}>
-                      <Text
-                        className={`text-sm font-medium ${
-                          isSelected ? 'text-white' : 'text-gray-700'
-                        }`}>
-                        {category}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </ScrollView>
-              <View className="mt-auto flex flex-row items-center rounded-2xl border border-border bg-background px-4 py-2">
-                <Ionicons name="search" size={20} color="#9CA3AF" />
-                <TextInput
-                  value={searchQuery}
-                  onChangeText={setSearchQuery}
-                  placeholder="Search wishes..."
-                  placeholderTextColor="#9CA3AF"
-                  autoFocus
-                  className="ml-2 flex-1 text-base"
-                />
-              </View>
-            </Animated.View>
+                      {category}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
           )}
-        </View>
-        <View className="flex flex-col gap-2">
-          <Pressable
-            onPress={toggleSearch}
-            className="-right-100 h-750 w-750 flex-row items-center justify-center gap-300 rounded-2xl bg-highlight">
-            {searchExpanded ? (
-              <Ionicons name="close" size={20} color="#374151" />
-            ) : (
-              <Ionicons name="search" size={20} color="#374151" />
+
+          <Animated.View
+            pointerEvents="box-none"
+            entering={FadeIn.duration(200)}
+            className="mt-200 w-full flex-row items-center justify-end">
+            {/* LEFT SIDE */}
+            {searchExpanded && (
+              <>
+                <View className="mr-3 flex-1">
+                  {/* Search Input */}
+                  <View className="mt-2 flex-row items-center rounded-600 border border-border bg-background px-4 py-2">
+                    <Ionicons name="search" size={20} color="#9CA3AF" />
+
+                    <TextInput
+                      value={searchQuery}
+                      onChangeText={setSearchQuery}
+                      placeholder="Search wishes..."
+                      placeholderTextColor="#9CA3AF"
+                      autoFocus
+                      className="ml-2 flex-1 text-base"
+                    />
+                  </View>
+                </View>
+              </>
             )}
-          </Pressable>
-          <Pressable
-            onPress={async () => {
-              try {
-                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-              } catch (e) {
-                // Haptics not available
-              }
-              setShowAdd(true);
-            }}
-            className="right-200 h-800 w-800 items-center justify-center rounded-600 bg-accent">
-            <Ionicons name="add" size={32} color="white" />
-          </Pressable>
-        </View>
+
+            {/* RIGHT BUTTON COLUMN */}
+            <View className="w-[64px] items-center gap-2">
+              {/* SEARCH / CLOSE BUTTON */}
+              <Pressable
+                onPress={toggleSearch}
+                className={`items-center justify-center 
+          ${searchExpanded ? 'h-800 w-800 rounded-600 bg-accent' : 'h-750 w-750  rounded-2xl bg-highlight'}
+        `}>
+                <Ionicons
+                  name={searchExpanded ? 'close' : 'search'}
+                  size={searchExpanded ? 24 : 20}
+                  color={searchExpanded ? 'white' : '#374151'}
+                />
+              </Pressable>
+
+              {/* ADD BUTTON */}
+              {!searchExpanded && (
+                <Pressable
+                  onPress={async () => {
+                    try {
+                      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                    } catch {}
+                    setShowAdd(true);
+                  }}
+                  className="h-800 w-800 items-center justify-center rounded-600 bg-accent">
+                  <Ionicons name="add" size={32} color="white" />
+                </Pressable>
+              )}
+            </View>
+          </Animated.View>
+        </Animated.View>
       </Animated.View>
 
       {/* MODALS */}
