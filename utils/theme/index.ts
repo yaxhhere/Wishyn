@@ -15,7 +15,7 @@ export const theme = {
     danger: 'hsl(0 84% 60%)',
     warning: 'hsl(38 92% 50%)',
 
-    muted: 'hsl(215 16% 92%)',
+    muted: 'hsl(215, 20%, 65%;)',
     grey1: 'hsl(210 16% 90%)',
   },
 

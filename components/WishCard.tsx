@@ -1,9 +1,13 @@
 import { View, Text, Modal, Image, Pressable, Clipboard } from 'react-native';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import * as Haptics from 'expo-haptics';
 import { Wish } from 'types';
 import { Ionicons } from '@expo/vector-icons';
 import * as ClipboardExpo from 'expo-clipboard';
+
+import { Currency, convertCurrency, formatCurrency } from 'utils/helper';
+import { useCurrency } from 'utils/context/currency';
+
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
@@ -19,14 +23,41 @@ export default function WishCard({ wish, onEdit, onDelete, onTogglePurchase, onO
   const [expanded, setExpanded] = useState(false);
   const [showLinkModal, setShowLinkModal] = useState(false);
 
+  const { currency: displayCurrency } = useCurrency();
+  const wishCurrency = displayCurrency as Currency;
+  const isPurchased = wish.isPurchased ?? false;
+
+  /* -------------------- Price Parsing -------------------- */
+  const wishPrice = useMemo(() => {
+    const raw = wish.price ?? 0;
+    const num = typeof raw === 'number' ? raw : parseFloat(String(raw).replace(/[^\d.-]/g, ''));
+
+    return isNaN(num) ? 0 : num;
+  }, [wish.price]);
+
+  const displayPrice = useMemo(() => {
+    return convertCurrency(wishPrice, wishCurrency, displayCurrency);
+  }, [wishPrice, wishCurrency, displayCurrency]);
+
+  /* -------------------- Haptics -------------------- */
+  const hapticLight = async () => {
+    try {
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    } catch {}
+  };
+
+  const hapticMedium = async () => {
+    try {
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    } catch {}
+  };
+
   // Safety check
   if (!wish) return null;
 
-  const isPurchased = wish.isPurchased ?? false;
-
   const toggleExpand = async () => {
     try {
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      await hapticLight();
     } catch (e) {
       // Haptics not available
     }
@@ -35,7 +66,7 @@ export default function WishCard({ wish, onEdit, onDelete, onTogglePurchase, onO
 
   const handleCheckbox = async () => {
     try {
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      await hapticMedium();
     } catch (e) {
       // Haptics not available
     }
@@ -111,7 +142,7 @@ export default function WishCard({ wish, onEdit, onDelete, onTogglePurchase, onO
           {/* Price Badge */}
           <View className="rounded-full bg-primary px-400 py-300">
             <Text className="text-lg font-semibold text-primary-fg">
-              {wish.currency} {wish.price}
+              {formatCurrency(displayPrice, displayCurrency)}
             </Text>
           </View>
 
@@ -120,7 +151,7 @@ export default function WishCard({ wish, onEdit, onDelete, onTogglePurchase, onO
             {wish.link && (
               <Pressable
                 onPress={async () => {
-                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  await hapticLight();
                   setShowLinkModal(true);
                 }}>
                 <AntDesign name="link" size={20} color="hsl(var(--background))" />
@@ -130,7 +161,7 @@ export default function WishCard({ wish, onEdit, onDelete, onTogglePurchase, onO
             <Pressable
               onPress={async () => {
                 try {
-                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  await hapticLight();
                 } catch (e) {
                   // Haptics not available
                 }
@@ -142,7 +173,7 @@ export default function WishCard({ wish, onEdit, onDelete, onTogglePurchase, onO
             <Pressable
               onPress={async () => {
                 try {
-                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  await hapticLight();
                 } catch (e) {
                   // Haptics not available
                 }
