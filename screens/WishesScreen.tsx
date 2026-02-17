@@ -26,10 +26,12 @@ import ConfirmDeleteModal from 'components/ConfirmDeleteModal';
 
 import { Wish, Category } from 'types';
 import { storageService } from 'utils/storage';
-
-const CATEGORIES: Category[] = ['Electronics', 'Books', 'Furniture', 'Unspecified'];
+import { useCurrency } from 'utils/context/currency';
+import { formatCurrency } from 'utils/helper';
+import { useCategories } from 'utils/context/category';
 
 export default function WishesScreen() {
+  const { categories } = useCategories();
   const [wishes, setWishes] = useState<Wish[]>([]);
   const [showAdd, setShowAdd] = useState(false);
   const [editWish, setEditWish] = useState<Wish | null>(null);
@@ -40,6 +42,10 @@ export default function WishesScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
   const keyboardOffset = useSharedValue(0);
+  const { currency: displayCurrency } = useCurrency();
+  const totalRemaining = wishes
+    .filter((w) => !w.isPurchased)
+    .reduce((sum, w) => sum + (Number(w.price) || 0), 0);
 
   useEffect(() => {
     const keyboardWillShow = Keyboard.addListener(
@@ -192,8 +198,13 @@ export default function WishesScreen() {
               horizontal
               keyboardShouldPersistTaps="handled"
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ gap: 6, alignItems: 'center' }}>
-              {CATEGORIES.map((category) => {
+              contentContainerStyle={{
+                gap: 6,
+                width: '100%',
+                alignItems: 'center',
+                justifyContent: 'flex-start',
+              }}>
+              {categories.map((category) => {
                 const isSelected = selectedCategories.includes(category);
 
                 return (
@@ -224,7 +235,7 @@ export default function WishesScreen() {
               <>
                 <View className="mr-3 flex-1">
                   {/* Search Input */}
-                  <View className="mt-2 flex-row items-center rounded-600 border border-border bg-background px-4 py-2">
+                  <View className="mt-2 w-full flex-row items-center rounded-600 border border-border bg-background px-4 py-2">
                     <Ionicons name="search" size={20} color="#9CA3AF" />
 
                     <TextInput
@@ -233,7 +244,7 @@ export default function WishesScreen() {
                       placeholder="Search wishes..."
                       placeholderTextColor="#9CA3AF"
                       autoFocus
-                      className="ml-2 flex-1 text-base"
+                      className="ml-2 w-full flex-1 text-base"
                     />
                   </View>
                 </View>
@@ -241,33 +252,55 @@ export default function WishesScreen() {
             )}
 
             {/* RIGHT BUTTON COLUMN */}
-            <View className="w-[64px] items-center gap-2">
-              {/* SEARCH / CLOSE BUTTON */}
-              <Pressable
-                onPress={toggleSearch}
-                className={`items-center justify-center 
-          ${searchExpanded ? 'h-800 w-800 rounded-600 bg-accent' : 'h-750 w-750  rounded-2xl bg-highlight'}
-        `}>
-                <Ionicons
-                  name={searchExpanded ? 'close' : 'search'}
-                  size={searchExpanded ? 24 : 20}
-                  color={searchExpanded ? 'white' : '#374151'}
-                />
-              </Pressable>
-
-              {/* ADD BUTTON */}
+            <View
+              className={
+                searchExpanded
+                  ? ' flex-row items-end justify-between gap-3'
+                  : 'flex-1 flex-row items-end justify-between gap-3'
+              }>
+              {/* TOTAL VIEW */}
               {!searchExpanded && (
-                <Pressable
-                  onPress={async () => {
-                    try {
-                      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                    } catch {}
-                    setShowAdd(true);
-                  }}
-                  className="h-800 w-800 items-center justify-center rounded-600 bg-accent">
-                  <Ionicons name="add" size={32} color="white" />
-                </Pressable>
+                <View className="flex h-800 flex-col items-start justify-start  rounded-full border border-border bg-highlight px-600 py-300">
+                  <Text className="text-xs text-highlight-fg">Total</Text>
+                  <Text className="text-lg font-semibold text-highlight-fg">
+                    {totalRemaining > 0 ? formatCurrency(totalRemaining, displayCurrency) : 0}
+                  </Text>
+                </View>
               )}
+
+              {/* BUTTON COLUMN */}
+              <View className="w-[64px] items-center gap-2">
+                {/* SEARCH / CLOSE BUTTON */}
+                <Pressable
+                  onPress={toggleSearch}
+                  className={`items-center justify-center 
+        ${
+          searchExpanded
+            ? 'h-800 w-800 rounded-600 bg-accent'
+            : 'h-750 w-750 rounded-2xl bg-highlight'
+        }
+      `}>
+                  <Ionicons
+                    name={searchExpanded ? 'close' : 'search'}
+                    size={searchExpanded ? 24 : 20}
+                    color={searchExpanded ? 'white' : '#374151'}
+                  />
+                </Pressable>
+
+                {/* ADD BUTTON */}
+                {!searchExpanded && (
+                  <Pressable
+                    onPress={async () => {
+                      try {
+                        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                      } catch {}
+                      setShowAdd(true);
+                    }}
+                    className="h-800 w-800 items-center justify-center rounded-600 bg-accent">
+                    <Ionicons name="add" size={32} color="white" />
+                  </Pressable>
+                )}
+              </View>
             </View>
           </Animated.View>
         </Animated.View>

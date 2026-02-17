@@ -38,7 +38,7 @@ function BombButton({ onPress }: { onPress: () => void }) {
   useEffect(() => {
     rotate.value = withRepeat(
       withDelay(
-        3000, // wait few seconds before wobble
+        7000, // wait few seconds before wobble
         withSequence(
           withTiming(-12, { duration: 80 }),
           withTiming(12, { duration: 80 }),
@@ -47,7 +47,7 @@ function BombButton({ onPress }: { onPress: () => void }) {
           withTiming(0, { duration: 80 })
         )
       ),
-      3, // infinite repeat
+      -1,
       true
     );
   }, []);
@@ -58,7 +58,7 @@ function BombButton({ onPress }: { onPress: () => void }) {
 
   return (
     <AnimatedPressable onPress={onPress} style={animatedStyle}>
-      <FontAwesome5 name="bomb" size={24} />
+      <FontAwesome5 name="smile" size={24} color={'hsl(46, 6%, 24%)'} />
     </AnimatedPressable>
   );
 }

@@ -228,15 +228,6 @@ export default function SettingsScreen() {
       await file.write(content);
 
       Alert.alert('Export Successful', `File saved to:\n${targetDirectory.uri}`);
-
-      /* -------- OPTIONAL SHARE -------- */
-      // if (await Sharing.isAvailableAsync()) {
-      //   await Sharing.shareAsync(file.uri, {
-      //     mimeType,
-      //     dialogTitle: 'Export Wishes Data',
-      //     UTI: mimeType,
-      //   });
-      // }
     } catch (error) {
       console.log('Export error: (Rejection)', error);
 
@@ -306,8 +297,19 @@ export default function SettingsScreen() {
         </View>
 
         {/* Basic Section Card */}
-        <StyledAccordion title="Basic">
-          {/* Theme Row */}
+        <StyledAccordion title="General">
+          {/* Categories Row */}
+          <View className="flex-row items-center justify-between border-b border-grey1 p-350">
+            <Text className="text-300 text-foreground">All Categories</Text>
+            <View className="relative">
+              <TouchableOpacity
+                onPress={() => setShowCategoryManager(true)}
+                className="flex-row items-center gap-200 rounded-full bg-primary px-400 py-300">
+                <MaterialIcons name="mode-edit" size={20} color="#fff" />
+                <Text className="text-200 font-medium text-primary-fg">Edit</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
           <View className="flex-row items-center justify-between border-b border-grey1 p-350">
             <Text className="text-300 text-foreground">Theme</Text>
             <View className="relative">

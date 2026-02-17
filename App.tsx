@@ -7,6 +7,7 @@ import ProfileScreen from 'screens/ProfileScreen';
 import HomeHeader from 'components/Header';
 import { CurrencyProvider } from 'utils/context/currency';
 import WishesScreen from 'screens/WishesScreen';
+import { CategoryProvider } from 'utils/context/category';
 
 export default function App() {
   const [activeScreen, setActiveScreen] = useState('wishes');
@@ -25,11 +26,13 @@ export default function App() {
   return (
     <SafeAreaView className="flex-1 flex-col bg-background">
       {/* HEADER */}
-      <CurrencyProvider>
-        <HomeHeader />
-        <View className="h-[80%] w-full">{renderScreen()}</View>
-        <BottomNavigation activeScreen={activeScreen} onNavigate={setActiveScreen} />
-      </CurrencyProvider>
+      <CategoryProvider>
+        <CurrencyProvider>
+          <HomeHeader />
+          <View className="h-[80%] w-full">{renderScreen()}</View>
+          <BottomNavigation activeScreen={activeScreen} onNavigate={setActiveScreen} />
+        </CurrencyProvider>
+      </CategoryProvider>
     </SafeAreaView>
   );
 }

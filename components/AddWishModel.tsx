@@ -8,10 +8,10 @@ import * as Haptics from 'expo-haptics';
 import { Wish, Category } from 'types';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from './common/Button';
-import { Currency } from 'utils/helper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Dimensions } from 'react-native';
 import { useCurrency } from 'utils/context/currency';
+import { useCategories } from 'utils/context/category';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
@@ -24,23 +24,9 @@ const DEFAULT_CATEGORIES: Category[] = [
   'Unspecified',
 ];
 
-const CURRENCIES: { code: Currency; symbol: string }[] = [
-  { code: 'INR', symbol: '₹' },
-  { code: 'USD', symbol: '$' },
-  { code: 'EUR', symbol: '€' },
-  // { code: 'GBP', symbol: '£' },
-];
-
 const normalizeCategory = (value: string) => value.trim().toLowerCase();
 
 const CATEGORY_STORAGE_KEY = '@wish_categories';
-
-const CURRENCY_SYMBOL_MAP: Record<Currency, string> = {
-  INR: '₹',
-  USD: '$',
-  EUR: '€',
-  // GBP: '£',
-};
 
 interface Props {
   visible: boolean;
@@ -51,7 +37,6 @@ interface Props {
 
 export default function AddWishModal({ visible, onClose, onSave, existingWish }: Props) {
   const isEdit = !!existingWish;
-
   const [title, setTitle] = useState('');
   const [price, setPrice] = useState('');
   const { currency: displayCurrency } = useCurrency();
@@ -63,7 +48,7 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
 
-  const [categories, setCategories] = useState<Category[]>([...DEFAULT_CATEGORIES, 'Unspecified']);
+  const { categories, addCategory } = useCategories();
 
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
   const [newCategory, setNewCategory] = useState('');
@@ -493,7 +478,7 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
                 <Button
                   title="Add"
                   variant="danger"
-                  onPress={() => {
+                  onPress={async () => {
                     const trimmed = newCategory.trim();
 
                     if (!trimmed) {
@@ -512,7 +497,7 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
 
                     const finalCategory = trimmed as Category;
 
-                    setCategories((prev) => [...prev, finalCategory]);
+                    await addCategory(finalCategory);
                     setCategory(finalCategory);
 
                     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
