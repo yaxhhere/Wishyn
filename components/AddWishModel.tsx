@@ -67,7 +67,7 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
       try {
         const stored = await AsyncStorage.getItem(CATEGORY_STORAGE_KEY);
         if (stored) {
-          setCategories(JSON.parse(stored));
+          addCategory(JSON.parse(stored));
         }
       } catch (e) {
         console.warn('Failed to load categories', e);

@@ -303,7 +303,7 @@ export default function SettingsScreen() {
             <Text className="text-300 text-foreground">All Categories</Text>
             <View className="relative">
               <TouchableOpacity
-                onPress={() => setShowCategoryManager(true)}
+                // onPress={() => setShowCategoryManager(true)}
                 className="flex-row items-center gap-200 rounded-full bg-primary px-400 py-300">
                 <MaterialIcons name="mode-edit" size={20} color="#fff" />
                 <Text className="text-200 font-medium text-primary-fg">Edit</Text>

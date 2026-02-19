@@ -130,11 +130,9 @@ export default function WishCard({ wish, onEdit, onDelete, onTogglePurchase, onO
               )}
 
               {/* Category Badge */}
-              {wish.category && wish.category.toLowerCase() !== 'unspecified' && (
-                <View className="rounded-full bg-highlight px-400 py-300">
-                  <Text className="text-200 text-foreground">{wish.category}</Text>
-                </View>
-              )}
+              <View className="rounded-full bg-highlight px-400 py-300">
+                <Text className="text-200 text-foreground">{wish.category ?? 'Unspecified'}</Text>
+              </View>
             </View>
           </View>
         )}
