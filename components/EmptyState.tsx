@@ -1,19 +1,18 @@
-import { View, Text, Pressable } from 'react-native';
+import { View, Text } from 'react-native';
+import { Button } from './common/Button';
 
 export default function EmptyState({ onAdd }: { onAdd: () => void }) {
   return (
-    <View className="flex-1 items-center justify-center px-6">
-      <View className="bg-primarySoft rounded-card mb-2 px-6">
-        <Text className="text-lg font-semibold text-primary">No wishes yet</Text>
+    <View className="flex-1 items-center justify-center px-400">
+      <View className="bg-primarySoft rounded-card px-400">
+        <Text className="text-400 font-semibold text-muted">No wishes yet</Text>
       </View>
 
       <Text className="text-textSecondary mb-4 text-center">
-        Add something meaningful you want to achieve or buy.
+        Add something meaningful you want to buy.
       </Text>
 
-      <Pressable onPress={onAdd} className="rounded-button rounded-2xl bg-primary px-8 py-4">
-        <Text className="font-semibold text-white">Add your first wish</Text>
-      </Pressable>
+      <Button title="Add a wish" variant="primary" onPress={onAdd} />
     </View>
   );
 }
