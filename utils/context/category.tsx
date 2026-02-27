@@ -6,16 +6,17 @@ export type Category = string;
 type CategoryContextType = {
   categories: Category[];
   addCategory: (name: string) => Promise<void>;
-  removeCategory: (name: string) => Promise<void>;
+  deleteCategory: (name: string) => Promise<void>;
+  renameCategory: (oldName: string, newName: string) => Promise<void>;
   ensureValidCategory: (category?: string | null) => string;
-  updateCategory: (oldName: string, newName: string) => Promise<void>;
 };
 
 const CATEGORY_STORAGE_KEY = '@wish_categories';
+const WISHES_STORAGE_KEY = '@wishlist_wishes';
 
 const DEFAULT_CATEGORIES: Category[] = ['Unspecified', 'Electronics', 'Books'];
 
-const NON_DELETABLE_CATEGORY = 'Unspecified';
+export const NON_DELETABLE_CATEGORY = 'Unspecified';
 
 const CategoryContext = createContext<CategoryContextType | null>(null);
 
@@ -53,46 +54,76 @@ export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     await AsyncStorage.setItem(CATEGORY_STORAGE_KEY, JSON.stringify(newCategories));
   };
 
+  /* ─── CRUD ─────────────────────────────────────────────── */
+
   const addCategory = async (name: string) => {
     const trimmed = name.trim();
     if (!trimmed) return;
 
     const exists = categories.some((cat) => cat.toLowerCase() === trimmed.toLowerCase());
-
     if (exists) return;
 
     const updated = [...categories, trimmed];
     await saveCategories(updated);
   };
 
-  const removeCategory = async (name: string) => {
+  /** Delete a category and cascade: all wishes using it → "Unspecified" */
+  const deleteCategory = async (name: string) => {
     if (name === NON_DELETABLE_CATEGORY) return;
 
-    const updated = categories.filter((c) => c !== name);
+    // 1. Update categories list
+    const updatedCategories = categories.filter((c) => c !== name);
+    await saveCategories(updatedCategories);
 
-    await saveCategories(updated);
+    // 2. Cascade: reset wishes with deleted category → "Unspecified"
+    try {
+      const stored = await AsyncStorage.getItem(WISHES_STORAGE_KEY);
+      if (stored) {
+        const wishes = JSON.parse(stored);
+        const updatedWishes = wishes.map((w: any) =>
+          w.category === name ? { ...w, category: NON_DELETABLE_CATEGORY } : w
+        );
+        await AsyncStorage.setItem(WISHES_STORAGE_KEY, JSON.stringify(updatedWishes));
+      }
+    } catch (e) {
+      console.warn('Failed to cascade delete category into wishes', e);
+    }
   };
 
-  // ✅ Always return a valid category
-  const ensureValidCategory = (category?: string | null): string => {
-    if (!category) return NON_DELETABLE_CATEGORY;
-
-    const exists = categories.includes(category);
-    return exists ? category : NON_DELETABLE_CATEGORY;
-  };
-  const updateCategory = async (oldName: string, newName: string) => {
+  /** Rename a category and cascade: all wishes using oldName → newName */
+  const renameCategory = async (oldName: string, newName: string) => {
     const trimmed = newName.trim();
     if (!trimmed) return;
+    if (oldName === NON_DELETABLE_CATEGORY) return;
 
-    if (oldName === 'Unspecified') return; // protect
+    const alreadyExists = categories.some(
+      (cat) => cat.toLowerCase() === trimmed.toLowerCase() && cat !== oldName
+    );
+    if (alreadyExists) return;
 
-    const exists = categories.some((cat) => cat.toLowerCase() === trimmed.toLowerCase());
+    // 1. Update categories list
+    const updatedCategories = categories.map((c) => (c === oldName ? trimmed : c));
+    await saveCategories(updatedCategories);
 
-    if (exists) return;
+    // 2. Cascade: update wishes with oldName → newName
+    try {
+      const stored = await AsyncStorage.getItem(WISHES_STORAGE_KEY);
+      if (stored) {
+        const wishes = JSON.parse(stored);
+        const updatedWishes = wishes.map((w: any) =>
+          w.category === oldName ? { ...w, category: trimmed } : w
+        );
+        await AsyncStorage.setItem(WISHES_STORAGE_KEY, JSON.stringify(updatedWishes));
+      }
+    } catch (e) {
+      console.warn('Failed to cascade rename category into wishes', e);
+    }
+  };
 
-    const updated = categories.map((c) => (c === oldName ? trimmed : c));
-
-    await saveCategories(updated);
+  /** Always return a valid category (falls back to "Unspecified") */
+  const ensureValidCategory = (category?: string | null): string => {
+    if (!category) return NON_DELETABLE_CATEGORY;
+    return categories.includes(category) ? category : NON_DELETABLE_CATEGORY;
   };
 
   return (
@@ -100,9 +131,9 @@ export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       value={{
         categories,
         addCategory,
-        removeCategory,
+        deleteCategory,
+        renameCategory,
         ensureValidCategory,
-        updateCategory,
       }}>
       {children}
     </CategoryContext.Provider>

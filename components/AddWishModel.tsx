@@ -8,25 +8,13 @@ import * as Haptics from 'expo-haptics';
 import { Wish, Category } from 'types';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from './common/Button';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Dimensions } from 'react-native';
 import { useCurrency } from 'utils/context/currency';
 import { useCategories } from 'utils/context/category';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
-const DEFAULT_CATEGORIES: Category[] = [
-  'Electronics',
-  'Books',
-  'Furniture',
-  'Bucket',
-  'Games',
-  'Unspecified',
-];
-
 const normalizeCategory = (value: string) => value.trim().toLowerCase();
-
-const CATEGORY_STORAGE_KEY = '@wish_categories';
 
 interface Props {
   visible: boolean;
@@ -60,26 +48,6 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
     y: number;
     width: number;
   } | null>(null);
-
-  /* -------------------- LOAD CATEGORIES -------------------- */
-  useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        const stored = await AsyncStorage.getItem(CATEGORY_STORAGE_KEY);
-        if (stored) {
-          addCategory(JSON.parse(stored));
-        }
-      } catch (e) {
-        console.warn('Failed to load categories', e);
-      }
-    };
-
-    loadCategories();
-  }, []);
-
-  useEffect(() => {
-    AsyncStorage.setItem(CATEGORY_STORAGE_KEY, JSON.stringify(categories));
-  }, [categories]);
 
   /* -------------------- EDIT / RESET -------------------- */
   useEffect(() => {

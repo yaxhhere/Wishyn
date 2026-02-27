@@ -26,6 +26,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { Button } from 'components/common/Button';
+import CategoryManager from 'components/CategoryManager';
 
 type ExportFormat = 'CSV' | 'JSON' | 'XML';
 
@@ -43,6 +44,7 @@ export default function SettingsScreen() {
   const [theme, setTheme] = useState('Light');
   const [exportFormat, setExportFormat] = useState<ExportFormat>('CSV');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showCategoryManager, setShowCategoryManager] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [wishes, setWishes] = useState<Wish[]>([]);
 
@@ -303,7 +305,7 @@ export default function SettingsScreen() {
             <Text className="text-300 text-foreground">All Categories</Text>
             <View className="relative">
               <TouchableOpacity
-                // onPress={() => setShowCategoryManager(true)}
+                onPress={() => setShowCategoryManager(true)}
                 className="flex-row items-center gap-200 rounded-full bg-primary px-400 py-300">
                 <MaterialIcons name="mode-edit" size={20} color="#fff" />
                 <Text className="text-200 font-medium text-primary-fg">Edit</Text>
@@ -492,6 +494,10 @@ export default function SettingsScreen() {
           </Pressable>
         </Pressable>
       </Modal>
+      <CategoryManager
+        visible={showCategoryManager}
+        onClose={() => setShowCategoryManager(false)}
+      />
     </ScrollView>
   );
 }

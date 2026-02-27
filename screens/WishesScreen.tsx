@@ -9,7 +9,7 @@ import {
   Keyboard,
   ScrollView,
 } from 'react-native';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Animated, {
   FadeIn,
   useAnimatedStyle,
@@ -67,18 +67,35 @@ export default function WishesScreen() {
     };
   }, []);
 
-  useEffect(() => {
+  const skipSave = useRef(false);
+
+  const loadWishes = (fromCascade = false) => {
     storageService.loadWishes().then((loadedWishes) => {
-      // Ensure all wishes have isPurchased property
-      const wishesWithDefaults = loadedWishes.map((wish) => ({
+      const normalised = loadedWishes.map((wish) => ({
         ...wish,
         isPurchased: wish.isPurchased ?? false,
       }));
-      setWishes(wishesWithDefaults);
+      if (fromCascade) skipSave.current = true;
+      setWishes(normalised);
     });
+  };
+
+  // Initial load
+  useEffect(() => {
+    loadWishes();
   }, []);
 
+  // Reload wishes whenever categories change (catches cascade deletes/renames from CategoryContext)
   useEffect(() => {
+    loadWishes(true);
+  }, [categories]);
+
+  // Persist wishes — skipped when triggered by a cascade reload
+  useEffect(() => {
+    if (skipSave.current) {
+      skipSave.current = false;
+      return;
+    }
     storageService.saveWishes(wishes);
   }, [wishes]);
 
