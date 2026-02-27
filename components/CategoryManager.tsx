@@ -13,6 +13,10 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useCategories, NON_DELETABLE_CATEGORY } from 'utils/context/category';
 import { Button } from './common/Button';
+import ConfirmDeleteModal from './ConfirmDeleteModal';
+
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 
 interface Props {
   visible: boolean;
@@ -26,6 +30,7 @@ export default function CategoryManager({ visible, onClose }: Props) {
   const [editValue, setEditValue] = useState('');
   const [newCategoryName, setNewCategoryName] = useState('');
   const [showAddInput, setShowAddInput] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<string | null>(null);
 
   /* ─── Helpers ─────────────────────────────────────────── */
 
@@ -61,21 +66,7 @@ export default function CategoryManager({ visible, onClose }: Props) {
 
   const handleDelete = (category: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    Alert.alert(
-      'Delete Category',
-      `Delete "${category}"? All wishes in this category will be moved to "Unspecified".`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            await deleteCategory(category);
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-          },
-        },
-      ]
-    );
+    setPendingDelete(category);
   };
 
   const handleAdd = async () => {
@@ -102,6 +93,7 @@ export default function CategoryManager({ visible, onClose }: Props) {
     setEditingCategory(null);
     setNewCategoryName('');
     setShowAddInput(false);
+    setPendingDelete(null);
     onClose();
   };
 
@@ -142,11 +134,12 @@ export default function CategoryManager({ visible, onClose }: Props) {
                     {/* Name / Edit Input */}
                     <View className="flex-1">
                       {isEditing ? (
+
                         <TextInput
                           value={editValue}
                           onChangeText={setEditValue}
                           autoFocus
-                          className="rounded-600 border border-primary bg-background-sec px-300 py-200 text-200 text-foreground"
+                           className="flex-1 rounded-600 border border-gray-200 bg-background-sec px-400 py-400 text-200"
                           onSubmitEditing={handleSaveEdit}
                           returnKeyType="done"
                         />
@@ -168,14 +161,14 @@ export default function CategoryManager({ visible, onClose }: Props) {
                             {/* Confirm rename */}
                             <Pressable
                               onPress={handleSaveEdit}
-                              className="h-8 w-8 items-center justify-center rounded-full bg-primary">
-                              <Ionicons name="checkmark" size={16} color="white" />
+                              className="h-12 w-12 items-center rounded-400 justify-center bg-primary">
+                              <FontAwesome6 name="check" size={18} color="white" />
                             </Pressable>
                             {/* Cancel rename */}
                             <Pressable
                               onPress={() => setEditingCategory(null)}
-                              className="h-8 w-8 items-center justify-center rounded-full bg-highlight">
-                              <Ionicons name="close" size={16} color="#374151" />
+                              className="h-12 w-12 items-center rounded-400 justify-center bg-grey1">
+                              <Ionicons name="close" size={24} color="black" />
                             </Pressable>
                           </>
                         ) : (
@@ -186,14 +179,14 @@ export default function CategoryManager({ visible, onClose }: Props) {
                                 Haptics.selectionAsync();
                                 handleStartEdit(category);
                               }}
-                              className="h-8 w-8 items-center justify-center rounded-full bg-highlight">
-                              <Ionicons name="pencil-outline" size={15} color="#374151" />
+                              className="h-8 w-8 items-center justify-center">
+                              <MaterialIcons name="edit" size={22} color="hsl(var(--background))" />
                             </Pressable>
                             {/* Delete */}
                             <Pressable
                               onPress={() => handleDelete(category)}
-                              className="h-8 w-8 items-center justify-center rounded-full bg-danger">
-                              <Ionicons name="trash-outline" size={15} color="white" />
+                              className="h-8 w-8 items-center justify-center">
+                              <MaterialIcons name="delete" size={24} color="hsl(13, 82%, 58%)" />
                             </Pressable>
                           </>
                         )}
@@ -205,7 +198,7 @@ export default function CategoryManager({ visible, onClose }: Props) {
             </ScrollView>
 
             {/* Add New Category */}
-            <View className="mt-400">
+            <View className="mt-400" >
               {showAddInput ? (
                 <View className="flex-row items-center gap-200">
                   <TextInput
@@ -214,7 +207,7 @@ export default function CategoryManager({ visible, onClose }: Props) {
                     placeholder="New category name..."
                     placeholderTextColor="#9CA3AF"
                     autoFocus
-                    className="flex-1 rounded-600 border border-border bg-background-sec px-300 py-200 text-200 text-foreground"
+                    className="flex-1 rounded-600 border border-gray-200 bg-background-sec px-400 py-400 text-200"
                     onSubmitEditing={handleAdd}
                     returnKeyType="done"
                   />
@@ -246,12 +239,25 @@ export default function CategoryManager({ visible, onClose }: Props) {
             </View>
 
             {/* Footer close */}
-            <View className="mt-400 flex-row justify-end">
-              <Button title="Done" variant="ghost" onPress={handleClose} />
+            <View className="mt-400 flex-row justify-center">
+              <Button title="Close" variant="ghost" onPress={handleClose} />
             </View>
           </Animated.View>
         </Pressable>
       </Pressable>
+
+      {/* Confirm Delete */}
+      <ConfirmDeleteModal
+        title='Delete this category?'
+        visible={!!pendingDelete}
+        onConfirm={async () => {
+          if (!pendingDelete) return;
+          await deleteCategory(pendingDelete);
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          setPendingDelete(null);
+        }}
+        onCancel={() => setPendingDelete(null)}
+      />
     </Modal>
   );
 }

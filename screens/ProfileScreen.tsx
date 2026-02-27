@@ -472,22 +472,17 @@ export default function SettingsScreen() {
                   <Text className="text-200 text-muted">• All settings</Text>
                 </View>
 
-                <View className="gap-300 pt-300">
-                  <TouchableOpacity
+                <View className="gap-300">
+                  <Button
+                    title="Delete All Data Permanently"
+                    variant="danger"
                     onPress={handleDelete}
-                    className="w-full flex-row items-center justify-center gap-200 rounded-400 bg-transparent px-500 py-350">
-                    <Ionicons name="trash-outline" size={18} color="hsl(13, 82%, 58%)" />
-                    <Text className="text-300 font-medium text-danger">
-                      Delete All Data Permanently
-                    </Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
+                  />
+                  <Button
                     onPress={() => setShowDeleteModal(false)}
-                    className="w-full flex-row items-center justify-center gap-200 rounded-400 bg-transparent px-500 py-350">
-                    <Ionicons name="close" size={18} color="hsl(46, 6%, 24%)" />
-                    <Text className="text-300 font-medium text-foreground">Cancel</Text>
-                  </TouchableOpacity>
+                    title="Cancel"
+                    variant="ghost"
+                  />
                 </View>
               </View>
             </View>

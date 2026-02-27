@@ -75,6 +75,25 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
     setImage(undefined);
   };
 
+  // VERIFY URL
+  const isValidUrl = (value: string) => {
+  if (!value.trim()) return true; // optional field
+
+  let url = value.trim();
+
+  // Add protocol if missing
+  if (!/^https?:\/\//i.test(url)) {
+    url = `https://${url}`;
+  }
+
+  try {
+    const parsed = new URL(url);
+    return !!parsed.hostname;
+  } catch {
+    return false;
+  }
+};
+
   /* ---------------- IMAGE PICK + COMPRESS ---------------- */
   const pickImage = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -121,30 +140,40 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
   };
 
   /* ---------------- SAVE ---------------- */
-  const handleSave = () => {
-    if (!title.trim() || !price) {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      return;
-    }
+const handleSave = () => {
+  if (!title.trim() || !price) {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    return;
+  }
 
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  if (!isValidUrl(link)) {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    return;
+  }
 
-    onSave({
-      id: existingWish?.id ?? Date.now().toString(),
-      title: title.trim(),
-      price: Number(price),
-      currency: displayCurrency,
-      targetDate: targetDate?.toISOString() ?? new Date().toISOString(),
-      category,
-      link: link.trim() || undefined,
-      image,
-      isPurchased: existingWish?.isPurchased ?? false,
-    });
+  let formattedLink = link.trim();
 
-    onClose();
-    reset();
-  };
+  if (formattedLink && !/^https?:\/\//i.test(formattedLink)) {
+    formattedLink = `https://${formattedLink}`;
+  }
 
+  Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+  onSave({
+    id: existingWish?.id ?? Date.now().toString(),
+    title: title.trim(),
+    price: Number(price),
+    currency: displayCurrency,
+    targetDate: targetDate?.toISOString() ?? new Date().toISOString(),
+    category,
+    link: formattedLink || undefined,
+    image,
+    isPurchased: existingWish?.isPurchased ?? false,
+  });
+
+  onClose();
+  reset();
+};
   const handleClose = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onClose();
