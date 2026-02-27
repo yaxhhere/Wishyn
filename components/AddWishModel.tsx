@@ -47,6 +47,7 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
     x: number;
     y: number;
     width: number;
+    height: number;
   } | null>(null);
 
   /* -------------------- EDIT / RESET -------------------- */
@@ -251,11 +252,11 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
                           onPress={() => {
                             Haptics.selectionAsync();
                             categoryRef.current?.measureInWindow((x, y, width, height) => {
-                              console.log({ x, y, width, height });
                               setCategoryAnchor({
                                 x,
                                 y,
                                 width,
+                                height,
                               });
                               setShowCategoryDropdown((v) => !v);
                             });
@@ -360,7 +361,7 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
               style={{
                 position: 'absolute',
                 left: categoryAnchor.x,
-                top: SCREEN_HEIGHT - categoryAnchor.y + 52,
+                bottom: SCREEN_HEIGHT - categoryAnchor.y - 28,
                 width: categoryAnchor.width,
                 backgroundColor: 'white',
                 elevation: 20,

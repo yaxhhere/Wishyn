@@ -122,7 +122,7 @@ export default function InfoDialog({ visible, onClose }: Props) {
 
                 <Button onPress={openPlayStore}>
                   <Ionicons name="open-outline" size={18} color="white" />
-                  <Text className=" text-primary-fg">Rate on Play Store</Text>
+                  <Text className=" text-primary-fg">Rate Us</Text>
                 </Button>
               </View>
             )}
