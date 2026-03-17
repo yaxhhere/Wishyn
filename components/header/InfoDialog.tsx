@@ -17,6 +17,22 @@ export default function InfoDialog({ visible, onClose }: Props) {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
 
+  const handleSendEmail = async () => {
+  const email = 'admin@abitstupidcompany.com';
+  const subject = 'App Feedback';
+  const body = 'Hey, I wanted to share some feedback:\n\n';
+
+  const url = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+  const supported = await Linking.canOpenURL(url);
+
+  if (supported) {
+    await Linking.openURL(url);
+  } else {
+    Alert.alert('Error', 'No email app found');
+  }
+};
+
   if (!visible) return null;
 
   // 👉 Replace with your actual Play Store link
@@ -130,43 +146,12 @@ export default function InfoDialog({ visible, onClose }: Props) {
             {/* ---------------- FEEDBACK TAB ---------------- */}
             {activeTab === 'feedback' && (
               <View>
-                {/* Email */}
-                <View className="mb-300">
-                  <Text className="mb-200 text-xs font-medium text-gray-500">EMAIL</Text>
-
-                  <TextInput
-                    placeholder="you@email.com"
-                    value={email}
-                    onChangeText={setEmail}
-                    autoCapitalize="none"
-                    keyboardType="email-address"
-                    placeholderTextColor="#9CA3AF"
-                    className="rounded-600 border border-gray-200 bg-background-sec px-400 py-400 text-200"
-                  />
-                </View>
-
-                {/* Message */}
-                <View className="mb-400">
-                  <Text className="mb-200 text-xs font-medium text-gray-500">MESSAGE</Text>
-
-                  <TextInput
-                    placeholder="Tell us what's cooking..."
-                    value={message}
-                    onChangeText={setMessage}
-                    multiline
-                    numberOfLines={4}
-                    textAlignVertical="top"
-                    placeholderTextColor="#9CA3AF"
-                    className="rounded-600 border border-gray-200 bg-background-sec px-400 py-400 text-200"
-                  />
-                </View>
-
-                <Button onPress={handleFeedbackSubmit}>
+                <Button onPress={handleSendEmail}>
                   <>
                     <Ionicons name="send-outline" size={20} color="white" />
                     <Text className="font-medium text-primary-fg">Send Feedback</Text>
                   </>
-                </Button>
+</Button>
               </View>
             )}
             <Button title="Close" size="md" variant="ghost" onPress={onClose} />

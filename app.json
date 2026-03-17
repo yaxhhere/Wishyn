@@ -30,6 +30,11 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.abitstupid.wishyn"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "8139cbef-7604-4d7d-a488-31302bd40344"
+      }
     }
   }
 }

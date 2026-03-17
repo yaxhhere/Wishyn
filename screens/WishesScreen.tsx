@@ -67,15 +67,17 @@ export default function WishesScreen() {
     };
   }, []);
 
-  const skipSave = useRef(false);
+  // isLoaded guards the save effect: we must never persist the initial
+  // empty-array state before we've read from storage.
+  const isLoaded = useRef(false);
 
-  const loadWishes = (fromCascade = false) => {
+  const loadWishes = () => {
     storageService.loadWishes().then((loadedWishes) => {
       const normalised = loadedWishes.map((wish) => ({
         ...wish,
         isPurchased: wish.isPurchased ?? false,
       }));
-      if (fromCascade) skipSave.current = true;
+      isLoaded.current = true;
       setWishes(normalised);
     });
   };
@@ -86,16 +88,20 @@ export default function WishesScreen() {
   }, []);
 
   // Reload wishes whenever categories change (catches cascade deletes/renames from CategoryContext)
+  // We only reload after the first load is done to avoid overwriting good data with stale state.
+  const categoriesRef = useRef(categories);
   useEffect(() => {
-    loadWishes(true);
+    if (!isLoaded.current) return;
+    // Only reload if categories actually changed (not the initial mount fire)
+    if (categories !== categoriesRef.current) {
+      categoriesRef.current = categories;
+      loadWishes();
+    }
   }, [categories]);
 
-  // Persist wishes — skipped when triggered by a cascade reload
+  // Persist wishes — only after the initial load has completed
   useEffect(() => {
-    if (skipSave.current) {
-      skipSave.current = false;
-      return;
-    }
+    if (!isLoaded.current) return;
     storageService.saveWishes(wishes);
   }, [wishes]);
 
