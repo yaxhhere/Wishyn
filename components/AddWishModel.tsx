@@ -1,4 +1,4 @@
-import { Modal, View, Text, TextInput, Pressable, Platform, Image, ScrollView } from 'react-native';
+import { Modal, View, Text, TextInput, Pressable, Platform, Image, ScrollView, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Animated, { FadeInDown, FadeOutDown, FadeIn, FadeOut } from 'react-native-reanimated';
@@ -41,6 +41,11 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
   const [newCategory, setNewCategory] = useState('');
 
+  // Error states
+  const [titleError, setTitleError] = useState(false);
+  const [priceError, setPriceError] = useState(false);
+  const [linkError, setLinkError] = useState(false);
+
   const categoryRef = useRef<View>(null);
 
   const [categoryAnchor, setCategoryAnchor] = useState<{
@@ -49,6 +54,24 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
     width: number;
     height: number;
   } | null>(null);
+
+  /* ---- Keyboard visibility tracker ---- */
+  const keyboardVisibleRef = useRef(false);
+  useEffect(() => {
+    const show = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      () => {
+        keyboardVisibleRef.current = true;
+        // Close dropdown if it was already open and a text input gained focus
+        setShowCategoryDropdown(false);
+      }
+    );
+    const hide = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      () => { keyboardVisibleRef.current = false; }
+    );
+    return () => { show.remove(); hide.remove(); };
+  }, []);
 
   /* -------------------- EDIT / RESET -------------------- */
   useEffect(() => {
@@ -73,6 +96,9 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
     setTargetDate(null);
     setLink('');
     setImage(undefined);
+    setTitleError(false);
+    setPriceError(false);
+    setLinkError(false);
   };
 
   // VERIFY URL
@@ -141,12 +167,15 @@ export default function AddWishModal({ visible, onClose, onSave, existingWish }:
 
   /* ---------------- SAVE ---------------- */
 const handleSave = () => {
-  if (!title.trim() || !price) {
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-    return;
-  }
+  const hasTitle = !!title.trim();
+  const hasPrice = !!price;
+  const hasValidLink = isValidUrl(link);
 
-  if (!isValidUrl(link)) {
+  setTitleError(!hasTitle);
+  setPriceError(!hasPrice);
+  setLinkError(!hasValidLink);
+
+  if (!hasTitle || !hasPrice || !hasValidLink) {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     return;
   }
@@ -182,14 +211,18 @@ const handleSave = () => {
   if (!visible) return null;
 
   return (
-    <ScrollView>
+    <>
       <Modal transparent animationType="none">
-        <Pressable className="flex-1 justify-end bg-black/50" onPress={handleClose}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1, justifyContent: 'flex-end' }}>
+          <Pressable className="flex-1" onPress={handleClose} />
           <Pressable onPress={(e) => e.stopPropagation()}>
             <Animated.View
               entering={FadeInDown.duration(250).springify()}
               exiting={FadeOutDown.duration(200)}
-              className="rounded-800 rounded-b-none bg-background p-400 shadow-2xl">
+              className="rounded-800 rounded-b-none bg-background p-400 shadow-2xl"
+              style={{ maxHeight: SCREEN_HEIGHT * 0.85 }}>
               {/* Header */}
               <View className="mb-400 flex-row items-center justify-center">
                 <View className="h-1 w-12 rounded-full bg-border" />
@@ -202,40 +235,40 @@ const handleSave = () => {
               <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
                 {/* Title Input */}
                 <View className="mb-300">
-                  <Text className="mb-200 text-xs font-medium text-gray-500">ITEM NAME</Text>
+                  <Text className={`mb-200 text-xs font-medium ${titleError ? 'text-red-500' : 'text-gray-500'}`}>ITEM NAME{titleError ? ' — required' : ''}</Text>
                   <TextInput
                     placeholder="Game Controller"
                     value={title}
-                    onChangeText={setTitle}
+                    onChangeText={(v) => { setTitle(v); if (v.trim()) setTitleError(false); }}
                     placeholderTextColor="#9CA3AF"
-                    className="rounded-600 border border-gray-200 bg-background-sec px-400 py-400 text-200"
+                    className={`rounded-600 border bg-background-sec px-400 py-400 text-200 ${titleError ? 'border-red-400' : 'border-gray-200'}`}
                     onFocus={() => Haptics.selectionAsync()}
                   />
                 </View>
 
                 {/* Link Input */}
                 <View className="mb-300">
-                  <Text className="mb-200 text-xs font-medium text-gray-500">LINK (OPTIONAL)</Text>
+                  <Text className={`mb-200 text-xs font-medium ${linkError ? 'text-red-500' : 'text-gray-500'}`}>LINK (OPTIONAL){linkError ? ' — invalid URL' : ''}</Text>
                   <TextInput
                     placeholder="www.label.com"
                     value={link}
-                    onChangeText={setLink}
+                    onChangeText={(v) => { setLink(v); if (!v.trim() || isValidUrl(v)) setLinkError(false); }}
                     autoCapitalize="none"
                     placeholderTextColor="#9CA3AF"
-                    className="rounded-600 border border-gray-200 bg-background-sec px-400 py-400 text-200"
+                    className={`rounded-600 border bg-background-sec px-400 py-400 text-200 ${linkError ? 'border-red-400' : 'border-gray-200'}`}
                     onFocus={() => Haptics.selectionAsync()}
                   />
                 </View>
                 {/* Price Input */}
                 <View className="mb-300 flex-1">
-                  <Text className="mb-200 text-xs font-medium text-gray-500">PRICE</Text>
+                  <Text className={`mb-200 text-xs font-medium ${priceError ? 'text-red-500' : 'text-gray-500'}`}>PRICE{priceError ? ' — required' : ''}</Text>
                   <TextInput
                     placeholder="0"
                     value={price}
-                    onChangeText={setPrice}
+                    onChangeText={(v) => { setPrice(v); if (v) setPriceError(false); }}
                     keyboardType="numeric"
                     placeholderTextColor="#9CA3AF"
-                    className="rounded-600 border border-gray-200 bg-background-sec px-400 py-400 text-200"
+                    className={`rounded-600 border bg-background-sec px-400 py-400 text-200 ${priceError ? 'border-red-400' : 'border-gray-200'}`}
                     onFocus={() => Haptics.selectionAsync()}
                   />
                 </View>
@@ -280,15 +313,22 @@ const handleSave = () => {
                           ref={categoryRef}
                           onPress={() => {
                             Haptics.selectionAsync();
-                            categoryRef.current?.measureInWindow((x, y, width, height) => {
-                              setCategoryAnchor({
-                                x,
-                                y,
-                                width,
-                                height,
+                            const doOpen = () => {
+                              categoryRef.current?.measureInWindow((x, y, width, height) => {
+                                setCategoryAnchor({ x, y, width, height });
+                                setShowCategoryDropdown((v) => !v);
                               });
-                              setShowCategoryDropdown((v) => !v);
-                            });
+                            };
+                            if (keyboardVisibleRef.current) {
+                              Keyboard.dismiss();
+                              const sub = Keyboard.addListener('keyboardDidHide', () => {
+                                sub.remove();
+                                // Tiny 50ms delay just to let the final native layout pass settle
+                                setTimeout(doOpen, 50);
+                              });
+                            } else {
+                              doOpen();
+                            }
                           }}
                           className="flex-row items-center justify-between rounded-full bg-highlight px-400 py-400">
                           <Text className="text-sm font-medium text-gray-700">{category}</Text>
@@ -377,7 +417,7 @@ const handleSave = () => {
               </View>
             </Animated.View>
           </Pressable>
-        </Pressable>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* SELECT CATEGORY DROPDOWN */}
@@ -509,6 +549,6 @@ const handleSave = () => {
           </Pressable>
         </Pressable>
       </Modal>
-    </ScrollView>
+    </>
   );
 }

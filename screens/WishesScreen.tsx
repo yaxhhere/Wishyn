@@ -223,9 +223,8 @@ export default function WishesScreen() {
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{
                 gap: 6,
-                width: '100%',
                 alignItems: 'center',
-                justifyContent: 'flex-start',
+                paddingVertical: 4,
               }}>
               {categories.map((category) => {
                 const isSelected = selectedCategories.includes(category);

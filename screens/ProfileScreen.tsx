@@ -312,7 +312,7 @@ export default function SettingsScreen() {
               </TouchableOpacity>
             </View>
           </View>
-          <View className="flex-row items-center justify-between border-b border-grey1 p-350">
+          {/* <View className="flex-row items-center justify-between border-b border-grey1 p-350">
             <Text className="text-300 text-foreground">Theme</Text>
             <View className="relative">
               <TouchableOpacity
@@ -347,7 +347,7 @@ export default function SettingsScreen() {
                 </View>
               )}
             </View>
-          </View>
+          </View> */}
 
           {/* Currency Row */}
           <View className="flex-row items-center justify-between p-350">
